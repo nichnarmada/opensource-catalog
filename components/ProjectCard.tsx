@@ -1,41 +1,30 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Project } from "@/types/project"
-import Link from "next/link"
-import { StarIcon } from "lucide-react"
+import { GitHubRepo } from "@/types/github"
+import { Star } from "lucide-react"
 
-interface ProjectCardProps {
-  project: {
-    id: number
-    name: string
-    description: string | null
-    stargazers_count: number
-    language: string | null
-    html_url: string
-  }
-}
-
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project }: { project: GitHubRepo }) {
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
-        <CardTitle className="text-xl">{project.name}</CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-xl">{project.name}</CardTitle>
+          <div className="flex items-center">
+            <Star className="w-4 h-4 mr-1 fill-yellow-500 border-yellow-500" />
+            <span className="text-muted-foreground">
+              {project.stargazers_count.toLocaleString()}
+            </span>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <p className="text-muted-foreground mb-4">{project.description}</p>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center">
-            <StarIcon className="w-4 h-4 mr-1" />
-            {project.stargazers_count}
+        {project.language && (
+          <div className="text-sm text-muted-foreground">
+            {project.language}
           </div>
-          {project.language && (
-            <div className="text-sm text-muted-foreground">
-              {project.language}
-            </div>
-          )}
-        </div>
+        )}
       </CardContent>
     </Card>
   )

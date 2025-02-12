@@ -36,9 +36,7 @@ export const fetchPopularProjects = async (
   try {
     const response = await fetch(url, {
       headers,
-      next: {
-        revalidate: 3600, // Cache for 1 hour
-      },
+      cache: "no-store", // Disable caching to always fetch fresh data
     })
 
     if (!response.ok) {

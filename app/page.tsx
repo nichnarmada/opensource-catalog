@@ -1,16 +1,36 @@
 import { fetchPopularProjects } from "@/services/github"
-import HomeClient from "./page-client"
+import { ProjectList } from "./project-list"
+import { Suspense } from "react"
+import { ProjectListSkeleton } from "./project-list-skeleton"
 
-export default async function Home({
+type SearchParams = { [key: string]: string | string[] | undefined }
+
+interface PageProps {
+  searchParams: SearchParams // Changed from Promise<SearchParams>
+}
+
+export default function Home({ searchParams }: PageProps) {
+  return (
+    <main className="container mx-auto py-8 bg-background">
+      <h1 className="text-4xl font-bold mb-8 text-foreground">
+        Explore Open-Source Projects
+      </h1>
+      <Suspense fallback={<ProjectListSkeleton />}>
+        <ProjectContent searchParams={searchParams} />
+      </Suspense>
+    </main>
+  )
+}
+
+async function ProjectContent({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: SearchParams
 }) {
-  const currentPage = Number(searchParams.page) || 1
-  const searchQuery = (searchParams.q as string) || ""
+  const currentPage = Number(searchParams?.page) || 1
+  const searchQuery = (searchParams?.q as string) ?? ""
   const perPage = 12
 
-  // Server-side data fetching
   const { items, total } = await fetchPopularProjects(
     currentPage,
     perPage,
@@ -19,17 +39,12 @@ export default async function Home({
   )
 
   return (
-    <main className="container mx-auto py-8 bg-background">
-      <h1 className="text-4xl font-bold mb-8 text-foreground">
-        Explore Open-Source Projects
-      </h1>
-      <HomeClient
-        initialItems={items}
-        total={total}
-        currentPage={currentPage}
-        searchQuery={searchQuery}
-        perPage={perPage}
-      />
-    </main>
+    <ProjectList
+      initialItems={items}
+      total={total}
+      currentPage={currentPage}
+      searchQuery={searchQuery}
+      perPage={perPage}
+    />
   )
 }

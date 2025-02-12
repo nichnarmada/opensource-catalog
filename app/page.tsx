@@ -6,17 +6,19 @@ import { ProjectListSkeleton } from "./project-list-skeleton"
 type SearchParams = { [key: string]: string | string[] | undefined }
 
 interface PageProps {
-  searchParams: SearchParams // Changed from Promise<SearchParams>
+  searchParams: Promise<SearchParams>
 }
 
-export default function Home({ searchParams }: PageProps) {
+export default async function Home({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams
+
   return (
     <main className="container mx-auto py-8 bg-background">
       <h1 className="text-4xl font-bold mb-8 text-foreground">
         Explore Open-Source Projects
       </h1>
       <Suspense fallback={<ProjectListSkeleton />}>
-        <ProjectContent searchParams={searchParams} />
+        <ProjectContent searchParams={resolvedSearchParams} />
       </Suspense>
     </main>
   )

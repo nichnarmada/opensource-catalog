@@ -3,6 +3,10 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { ProjectCard } from "@/components/project-card"
 import { GitHubRepo } from "@/types/github"
+import { useState, useEffect } from "react"
+import { useAuth } from "@/contexts/auth-context"
+import { addBookmark, removeBookmark, isBookmarked } from "@/services/bookmarks"
+import { BookmarkStats } from "@/types/bookmarks"
 import {
   Pagination,
   PaginationContent,
@@ -60,9 +64,63 @@ export function ProjectList({
   currentPage,
   perPage,
 }: ProjectListProps) {
+  const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [bookmarkStates, setBookmarkStates] = useState<Record<number, boolean>>(
+    {}
+  )
+  const [bookmarkStats, setBookmarkStats] = useState<
+    Record<number, BookmarkStats>
+  >({})
   const totalPages = Math.ceil(total / perPage)
+
+  // Load initial bookmark states and stats
+  useEffect(() => {
+    if (!user) return
+
+    initialItems.forEach(async (project) => {
+      const [bookmarked, stats] = await Promise.all([
+        isBookmarked(user.uid, project.id) as Promise<boolean>,
+        fetch(`/api/bookmarks/stats/${project.id}`).then((res) => res.json()),
+      ])
+
+      setBookmarkStates((prev) => ({ ...prev, [project.id]: bookmarked }))
+      setBookmarkStats((prev) => ({ ...prev, [project.id]: stats }))
+    })
+  }, [initialItems, user])
+
+  const handleBookmarkToggle = async (project: GitHubRepo) => {
+    if (!user) return
+
+    const isCurrentlyBookmarked = bookmarkStates[project.id]
+
+    if (isCurrentlyBookmarked) {
+      await removeBookmark(user.uid, project.id)
+    } else {
+      await addBookmark(
+        user.uid,
+        {
+          displayName:
+            user.displayName || user.email?.split("@")[0] || "Anonymous",
+          photoURL: user.photoURL ?? undefined,
+        },
+        project,
+        true
+      )
+    }
+
+    // Update bookmark state and stats
+    const newStats = await fetch(`/api/bookmarks/stats/${project.id}`).then(
+      (res) => res.json()
+    )
+
+    setBookmarkStates((prev) => ({
+      ...prev,
+      [project.id]: !isCurrentlyBookmarked,
+    }))
+    setBookmarkStats((prev) => ({ ...prev, [project.id]: newStats }))
+  }
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams)
@@ -76,7 +134,25 @@ export function ProjectList({
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {initialItems.map((project) => (
-          <ProjectCard key={project.id} project={project} />
+          <ProjectCard
+            key={project.id}
+            project={project}
+            bookmarkStats={
+              bookmarkStats[project.id] || {
+                repoId: project.id,
+                repo: {
+                  full_name: project.full_name,
+                  description: project.description,
+                  language: project.language,
+                  stargazers_count: project.stargazers_count,
+                },
+                totalBookmarks: 0,
+                recentBookmarkers: [],
+              }
+            }
+            isBookmarked={bookmarkStates[project.id] || false}
+            onBookmarkToggle={() => handleBookmarkToggle(project)}
+          />
         ))}
       </div>
 

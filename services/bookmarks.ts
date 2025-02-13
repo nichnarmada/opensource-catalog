@@ -40,7 +40,10 @@ export async function addBookmark(
   const bookmarkRef = doc(collection(db, "bookmarks"))
   const bookmark: Omit<Bookmark, "id"> = {
     userId,
-    userProfile,
+    userProfile: {
+      displayName: userProfile.displayName,
+      photoURL: userProfile.photoURL ?? null,
+    },
     repo: {
       id: repo.id,
       name: repo.name,

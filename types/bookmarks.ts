@@ -4,7 +4,10 @@ import { UserProfile } from "./user"
 export interface Bookmark {
   id: string
   userId: string
-  userProfile: Pick<UserProfile, "displayName" | "photoURL"> // Denormalized user data
+  userProfile: {
+    displayName: string
+    photoURL: string | null | undefined // Allow null
+  }
   repo: Pick<
     GitHubRepo,
     | "id"

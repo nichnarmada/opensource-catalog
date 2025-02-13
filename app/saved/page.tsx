@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { useEffect, useState } from "react"
 import { redirect } from "next/navigation"
 import { Bookmark } from "@/types/bookmarks"
+import { removeBookmark } from "@/services/bookmarks"
 
 export default function SavedPage() {
   const { user } = useAuth()
@@ -60,7 +61,33 @@ export default function SavedPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {bookmarks.map((bookmark) => (
-              <ProjectCard key={bookmark.id} project={bookmark.repo} />
+              <ProjectCard
+                key={bookmark.id}
+                project={bookmark.repo}
+                bookmarkStats={{
+                  repoId: bookmark.repo.id,
+                  repo: {
+                    full_name: bookmark.repo.full_name,
+                    description: bookmark.repo.description,
+                    language: bookmark.repo.language,
+                    stargazers_count: bookmark.repo.stargazers_count,
+                  },
+                  totalBookmarks: 1, // Since it's bookmarked
+                  recentBookmarkers: [
+                    {
+                      id: bookmark.userId,
+                      displayName: bookmark.userProfile.displayName,
+                      photoURL: bookmark.userProfile.photoURL ?? undefined,
+                    },
+                  ],
+                }}
+                isBookmarked={true}
+                onBookmarkToggle={async () => {
+                  // Handle unbookmark
+                  await removeBookmark(user.uid, bookmark.repo.id)
+                  setBookmarks(bookmarks.filter((b) => b.id !== bookmark.id))
+                }}
+              />
             ))}
           </div>
         )}

@@ -6,50 +6,29 @@ import { Badge } from "@/components/ui/badge"
 import { Star, Bookmark, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
-import { useState, useEffect } from "react"
-import { addBookmark, removeBookmark, isBookmarked } from "@/services/bookmarks"
+import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { BookmarkStats } from "@/types/bookmarks"
 
 interface ProjectCardProps {
   project: GitHubRepo
+  bookmarkStats: BookmarkStats
+  isBookmarked: boolean
+  onBookmarkToggle: () => Promise<void>
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({
+  project,
+  bookmarkStats: stats,
+  isBookmarked: bookmarked,
+  onBookmarkToggle,
+}: ProjectCardProps) {
   const { user } = useAuth()
   const { toast } = useToast()
-  const [bookmarked, setBookmarked] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [stats, setStats] = useState<BookmarkStats>({
-    repoId: project.id,
-    repo: {
-      full_name: project.full_name,
-      description: project.description,
-      language: project.language,
-      stargazers_count: project.stargazers_count,
-    },
-    totalBookmarks: 0,
-    recentBookmarkers: [],
-  })
+  const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (user) {
-      isBookmarked(user.uid, project.id)
-        .then(setBookmarked)
-        .finally(() => setLoading(false))
-    } else {
-      setLoading(false)
-    }
-
-    // Fetch bookmark stats
-    fetch(`/api/bookmarks/stats/${project.id}`)
-      .then((res) => res.json())
-      .then(setStats)
-      .catch(console.error)
-  }, [user, project.id])
-
-  const handleBookmarkToggle = async () => {
+  const handleBookmarkClick = async () => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -59,40 +38,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
       return
     }
 
+    setLoading(true)
     try {
-      if (bookmarked) {
-        await removeBookmark(user.uid, project.id)
-        setBookmarked(false)
-        setStats((prev) => ({
-          ...prev,
-          totalBookmarks: Math.max(0, prev.totalBookmarks - 1),
-        }))
-        toast({
-          title: "Bookmark removed",
-          description: "Project removed from your bookmarks",
-        })
-      } else {
-        await addBookmark(
-          user.uid,
-          {
-            displayName:
-              user.displayName || user.email?.split("@")[0] || "Anonymous",
-            photoURL: user.photoURL || undefined,
-          },
-          project,
-          true // isPublic
-        )
-        setBookmarked(true)
-        // Refetch stats after adding bookmark
-        const newStats = await fetch(`/api/bookmarks/stats/${project.id}`).then(
-          (res) => res.json()
-        )
-        setStats(newStats)
-        toast({
-          title: "Bookmark added",
-          description: "Project added to your bookmarks",
-        })
-      }
+      await onBookmarkToggle()
     } catch (error) {
       console.error("Bookmark error:", error)
       toast({
@@ -100,6 +48,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
         description: "Failed to update bookmark",
         variant: "destructive",
       })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -125,7 +75,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             variant="ghost"
             size="icon"
             className="h-8 w-8 hover:text-rose-500"
-            onClick={handleBookmarkToggle}
+            onClick={handleBookmarkClick}
             disabled={loading}
           >
             {loading ? (

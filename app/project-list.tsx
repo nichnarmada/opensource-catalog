@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/pagination"
 import { useDebouncedCallback } from "use-debounce"
 import { useState } from "react"
+import { ProjectFilters } from "@/components/filters/project-filters"
+import { Search } from "lucide-react"
 
 interface ProjectListProps {
   initialItems: GitHubRepo[]
@@ -22,6 +24,40 @@ interface ProjectListProps {
   currentPage: number
   searchQuery: string
   perPage: number
+}
+
+function getPageNumbers(currentPage: number, totalPages: number) {
+  const delta = 2 // Number of pages to show before and after current page
+  const pages: (number | "ellipsis")[] = []
+
+  // Always show first page
+  pages.push(1)
+
+  // Calculate range of pages around current page
+  const rangeStart = Math.max(2, currentPage - delta)
+  const rangeEnd = Math.min(totalPages - 1, currentPage + delta)
+
+  // Add ellipsis after first page if needed
+  if (rangeStart > 2) {
+    pages.push("ellipsis")
+  }
+
+  // Add pages in range
+  for (let i = rangeStart; i <= rangeEnd; i++) {
+    pages.push(i)
+  }
+
+  // Add ellipsis before last page if needed
+  if (rangeEnd < totalPages - 1) {
+    pages.push("ellipsis")
+  }
+
+  // Always show last page if there is more than one page
+  if (totalPages > 1) {
+    pages.push(totalPages)
+  }
+
+  return pages
 }
 
 export function ProjectList({
@@ -53,19 +89,25 @@ export function ProjectList({
     router.push(`/?${params.toString()}`)
   }
 
+  const pages = getPageNumbers(currentPage, totalPages)
+
   return (
-    <div className="space-y-6">
-      <div className="w-full max-w-xl">
-        <Input
-          type="search"
-          placeholder="Search projects..."
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value)
-            handleSearch(e.target.value)
-          }}
-          className="w-full"
-        />
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Input
+            type="search"
+            placeholder="Search projects..."
+            className="pr-10"
+            value={value}
+            onChange={(e) => {
+              setValue(e.target.value)
+              handleSearch(e.target.value)
+            }}
+          />
+          <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
+        </div>
+        <ProjectFilters />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -91,37 +133,26 @@ export function ProjectList({
               />
             </PaginationItem>
 
-            {/* Show fewer page numbers on mobile */}
-            <div className="hidden sm:flex items-center gap-2">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const pageNumber = i + 1
-                return (
-                  <PaginationItem key={pageNumber}>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        handlePageChange(pageNumber)
-                      }}
-                      isActive={currentPage === pageNumber}
-                    >
-                      {pageNumber}
-                    </PaginationLink>
-                  </PaginationItem>
-                )
-              })}
-              {totalPages > 5 && <PaginationEllipsis />}
-            </div>
-
-            {/* Mobile pagination - just show current page */}
-            <div className="sm:hidden flex items-center">
-              <PaginationItem>
-                <PaginationLink href="#" isActive>
-                  {currentPage}
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationEllipsis />
-            </div>
+            {pages.map((page, i) =>
+              page === "ellipsis" ? (
+                <PaginationItem key={`ellipsis-${i}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handlePageChange(page)
+                    }}
+                    isActive={page === currentPage}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
 
             <PaginationItem>
               <PaginationNext

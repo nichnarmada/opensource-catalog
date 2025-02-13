@@ -1,0 +1,210 @@
+---
+description: This rule helps you understand the structure of the project, where to put files when creating them and what should and should not be within components
+globs: 
+---
+# Architecture Guidelines
+
+## Directory Structure
+
+```
+app/                  # Expo Router app directory
+├── api/              # API routes
+├── auth/             # Authentication group
+│   └── 
+├── (main)/           # Main tab navigation group
+│   └── 
+├── layout.tsx        # Root layout
+└── index.tsx         # Entry redirect
+
+components/           # Reusable components
+└── ui/               # Shared components from shadcn-ui (buttons, inputs, etc)
+hooks/                # Custom hooks
+services/             # API and external service integrations
+types/                # TypeScript type definitions
+utils/                # Helper functions and constants
+constants/            # App constants and configuration
+assets/               # Images, fonts, and other static files
+styles/               # Global styles and theme configuration
+```
+
+## Core Principles
+
+### 1. Route Organization
+
+- Use Next.js file-based routing in the app directory.
+- Define layouts with layout.tsx files to share common UI (e.g. headers, footers, providers).
+- Use dynamic routes by applying bracket notation (e.g. [id]).
+- Protect sensitive routes with server-side Firebase Auth checks or middleware.
+
+```typescript
+// app/(tabs)/feed/index.tsx
+export default function FeedRoute() {
+  const { videos, isLoading } = useVideos()
+  const { saveVideo } = useVideoActions()
+
+  return (
+    <View>
+      <VideoFeed videos={videos} isLoading={isLoading} onSave={saveVideo} />
+    </View>
+  )
+}
+
+// app/(tabs)/_layout.tsx
+export default function TabsLayout() {
+  return (
+    <Tabs>
+      <Tabs.Screen name="feed" options={{ title: "Feed" }} />
+      <Tabs.Screen name="learn" options={{ title: "Learn" }} />
+      <Tabs.Screen name="profile" options={{ title: "Profile" }} />
+    </Tabs>
+  )
+}
+```
+
+### 2. Component Organization
+
+- Only shadcn-ui components belong in the components/ui/ directory.
+- Other components may use shadcn-ui components as building blocks to make bigger blocks of components
+- Components must remain free of business logic—move data fetching or state management to hooks or service layers.
+- Each component should be well documented with proper TypeScript prop definitions.
+
+### 3. Navigation and Routing
+
+- Use file-based routing with Expo Router
+- Implement deep linking with `expo-router`
+- Type route params using `useLocalSearchParams`
+- Handle navigation with `router.push()` and `Link`
+
+```typescript
+// app/(tabs)/feed/[id].tsx
+import { useLocalSearchParams, router } from "expo-router"
+
+export default function VideoRoute() {
+  const { id } = useLocalSearchParams<{ id: string }>()
+
+  return <VideoDetail videoId={id} onClose={() => router.back()} />
+}
+```
+
+### 4. Data Handling
+
+- Use React Query for remote data management
+- Implement local caching with AsyncStorage
+- Handle offline capabilities
+- Keep data fetching logic in hooks
+
+```typescript
+// hooks/useVideos.ts
+export function useVideos() {
+  return useQuery("videos", async () => {
+    const cached = await AsyncStorage.getItem("videos")
+    if (cached && !isStale(cached)) {
+      return JSON.parse(cached)
+    }
+    const videos = await videoService.fetchVideos()
+    await AsyncStorage.setItem("videos", JSON.stringify(videos))
+    return videos
+  })
+}
+```
+
+### 6. Styling
+
+- Use Tailwind for styles
+- Shadcn already has built in styles, use that first before adding on more tailwind styles on top
+- Keep styles close to components
+- Implement responsive design
+
+
+### 7. Performance Guidelines
+
+- Employ Next.js caching strategies (such as revalidation) for optimized performance.
+- Lazy load images and heavy components (use the Next.js Image component where possible).
+- Use memoization (via React.memo and useCallback) to optimize expensive renders.
+- Code-split heavy modules to minimize initial load time.
+
+```typescript
+// components/feed/VideoFeed.tsx
+export function VideoFeed({ videos }) {
+  const renderItem = useCallback(({ item }) => <VideoCard video={item} />, [])
+
+  return (
+    <FlashList
+      data={videos}
+      renderItem={renderItem}
+      estimatedItemSize={200}
+      onEndReached={loadMore}
+      removeClippedSubviews
+    />
+  )
+}
+```
+
+## Anti-patterns to Avoid
+
+1. ❌ Prop drilling more than 2 levels
+2. ❌ Direct API calls in components
+3. ❌ Inline styles for repeated elements
+4. ❌ Unsafe type assertions
+5. ❌ Complex logic in route components
+6. ❌ Nested navigation in components
+7. ❌ Synchronous storage operations
+
+## Best Practices
+
+1. ✅ Use route groups for organization
+2. ✅ Handle offline states
+3. ✅ Type all props and functions
+4. ✅ Document complex logic
+5. ✅ Test critical paths
+6. ✅ Optimize video playback
+7. ✅ Follow accessibility guidelines
+
+## Common Issues & Solutions
+
+### Next.js 15
+
+#### Async Request APIs
+
+```ts
+// Always use async versions of runtime APIs
+const cookieStore = await cookies()
+const headersList = await headers()
+const { isEnabled } = await draftMode()
+
+// Handle async params in layouts/pages
+const params = await props.params
+const searchParams = await props.searchParams
+```
+
+#### Data Fetching
+
+- Fetch requests are no longer cached by default
+- Use cache: 'force-cache' for specific cached requests
+- Implement fetchCache = 'default-cache' for layout/page-level caching
+- Use appropriate fetching methods (Server Components, SWR, React Query)
+
+#### Route Handlers
+
+```ts
+import { type NextRequest } from "next/server"
+
+// Cached route handler example
+export const dynamic = "force-static"
+
+export function GET(request: NextRequest) {
+  const params = await request.params
+  // Implementation
+}
+```
+
+NOT
+
+```ts
+export async function GET(
+  request: Request,
+  { params }: { params: { workspaceId: string } }
+) {
+  ...
+}
+```

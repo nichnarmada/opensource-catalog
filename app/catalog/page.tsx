@@ -21,9 +21,15 @@ export default async function CatalogPage({ searchParams }: PageProps) {
   return (
     <main className="container mx-auto p-4 sm:p-6 lg:p-8">
       <div className="space-y-6">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
-          Popular Open Source Projects
-        </h1>
+        <div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
+            Project Catalog
+          </h1>
+          <p className="mt-2 text-sm sm:text-base text-muted-foreground">
+            Browse and discover popular open source projects
+          </p>
+        </div>
+
         <SearchProjects initialValue={searchQuery} />
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
           <ProjectFilters />

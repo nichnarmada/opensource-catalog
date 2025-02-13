@@ -44,7 +44,7 @@ export function ProjectFilters() {
     } else {
       params.delete("language")
     }
-    router.push(`/?${params.toString()}`)
+    router.push(`/catalog?${params.toString()}`)
   }
 
   const handleAddLanguage = async () => {

@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { ProjectCard } from "@/components/ProjectCard"
+import { ProjectCard } from "@/components/project-card"
 import { GitHubRepo } from "@/types/github"
 import {
   Pagination,

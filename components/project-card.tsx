@@ -9,6 +9,8 @@ import { useAuth } from "@/contexts/auth-context"
 import { useState, useEffect } from "react"
 import { addBookmark, removeBookmark, isBookmarked } from "@/services/bookmarks"
 import { useToast } from "@/hooks/use-toast"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { BookmarkStats } from "@/types/bookmarks"
 
 interface ProjectCardProps {
   project: GitHubRepo
@@ -19,6 +21,17 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const { toast } = useToast()
   const [bookmarked, setBookmarked] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState<BookmarkStats>({
+    repoId: project.id,
+    repo: {
+      full_name: project.full_name,
+      description: project.description,
+      language: project.language,
+      stargazers_count: project.stargazers_count,
+    },
+    totalBookmarks: 0,
+    recentBookmarkers: [],
+  })
 
   useEffect(() => {
     if (user) {
@@ -28,6 +41,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
     } else {
       setLoading(false)
     }
+
+    // Fetch bookmark stats
+    fetch(`/api/bookmarks/stats/${project.id}`)
+      .then((res) => res.json())
+      .then(setStats)
+      .catch(console.error)
   }, [user, project.id])
 
   const handleBookmarkToggle = async () => {
@@ -44,13 +63,31 @@ export function ProjectCard({ project }: ProjectCardProps) {
       if (bookmarked) {
         await removeBookmark(user.uid, project.id)
         setBookmarked(false)
+        setStats((prev) => ({
+          ...prev,
+          totalBookmarks: Math.max(0, prev.totalBookmarks - 1),
+        }))
         toast({
           title: "Bookmark removed",
           description: "Project removed from your bookmarks",
         })
       } else {
-        await addBookmark(user.uid, project)
+        await addBookmark(
+          user.uid,
+          {
+            displayName:
+              user.displayName || user.email?.split("@")[0] || "Anonymous",
+            photoURL: user.photoURL || undefined,
+          },
+          project,
+          true // isPublic
+        )
         setBookmarked(true)
+        // Refetch stats after adding bookmark
+        const newStats = await fetch(`/api/bookmarks/stats/${project.id}`).then(
+          (res) => res.json()
+        )
+        setStats(newStats)
         toast({
           title: "Bookmark added",
           description: "Project added to your bookmarks",
@@ -124,6 +161,32 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </Badge>
           ))}
         </div>
+        {stats.totalBookmarks > 0 && (
+          <div className="flex items-center justify-between border-t pt-4">
+            <span className="text-xs text-muted-foreground">
+              {stats.totalBookmarks}{" "}
+              {stats.totalBookmarks === 1 ? "bookmark" : "bookmarks"}
+            </span>
+            <div className="flex items-center gap-2">
+              <div className="flex -space-x-2">
+                {stats.recentBookmarkers.slice(0, 3).map((user) => (
+                  <Avatar
+                    key={user.id}
+                    className="h-6 w-6 border-2 border-background"
+                  >
+                    <AvatarImage src={user.photoURL} />
+                    <AvatarFallback>{user.displayName[0]}</AvatarFallback>
+                  </Avatar>
+                ))}
+              </div>
+              {stats.totalBookmarks > 3 && (
+                <span className="text-xs text-muted-foreground">
+                  +{stats.totalBookmarks - 3} others
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

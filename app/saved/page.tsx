@@ -1,7 +1,7 @@
 "use client"
 
 import { getUserBookmarks } from "@/services/bookmarks"
-import { ProjectCard } from "@/components/ProjectCard"
+import { ProjectCard } from "@/components/project-card"
 import { useAuth } from "@/contexts/auth-context"
 import { useEffect, useState } from "react"
 import { redirect } from "next/navigation"

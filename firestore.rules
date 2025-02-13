@@ -2,9 +2,39 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /languages/{language} {
-      allow read: if true;  // Allow anyone to read languages
-      allow write: if request.auth != null;  // Only authenticated users can write
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Bookmark rules
+    match /bookmarks/{bookmarkId} {
+      // Allow reading all bookmarks
+      allow read: if true;
+      
+      // Allow creating if authenticated
+      allow create: if isSignedIn();
+      
+      // Allow updating/deleting own bookmarks
+      allow update, delete: if isOwner(resource.data.userId);
+    }
+
+    // User profile rules
+    match /users/{userId} {
+      // Allow reading any user profile
+      allow read: if true;
+      // Only allow users to modify their own profile
+      allow write: if isOwner(userId);
+    }
+
+    // Language rules (from your existing setup)
+    match /languages/{languageId} {
+      allow read: if true;
+      allow write: if isSignedIn();
     }
 
     // Keep other rules if they exist

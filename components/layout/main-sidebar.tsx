@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, Bookmark, Users, Library } from "lucide-react"
+import { Home, Bookmark, Library } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -69,20 +69,6 @@ export function MainSidebar() {
               >
                 <Library className="h-5 w-5" />
                 <span>Catalog</span>
-              </SidebarMenuButton>
-            </Link>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <Link href="/community" passHref legacyBehavior>
-              <SidebarMenuButton
-                tooltip="Community"
-                className={cn(
-                  "h-10",
-                  isActive("/community") && "bg-muted text-foreground"
-                )}
-              >
-                <Users className="h-5 w-5" />
-                <span>Community</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>

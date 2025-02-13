@@ -23,6 +23,7 @@ export async function addBookmark(userId: string, repo: GitHubRepo) {
     userId,
     repo: {
       id: repo.id,
+      name: repo.name,
       full_name: repo.full_name,
       description: repo.description,
       html_url: repo.html_url,

@@ -46,7 +46,7 @@ export default function SavedPage() {
             Your Bookmarks
           </h1>
           <p className="mt-2 text-sm sm:text-base text-muted-foreground">
-            Projects you've bookmarked for later
+            Projects you&apos;ve bookmarked for later
           </p>
         </div>
         {loading ? (

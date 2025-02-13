@@ -6,6 +6,7 @@ export interface Bookmark {
   repo: Pick<
     GitHubRepo,
     | "id"
+    | "name"
     | "full_name"
     | "description"
     | "html_url"

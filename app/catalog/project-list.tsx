@@ -67,7 +67,7 @@ export function ProjectList({
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams)
     params.set("page", page.toString())
-    router.push(`/?${params.toString()}`)
+    router.push(`/catalog?${params.toString()}`)
   }
 
   const pages = getPageNumbers(currentPage, totalPages)

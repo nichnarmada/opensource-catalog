@@ -53,109 +53,95 @@ export function ProjectList({
     router.push(`/?${params.toString()}`)
   }
 
-  const getPageNumbers = () => {
-    const delta = 2 // Number of pages to show on each side of current page
-    const range = []
-    const rangeWithDots = []
-
-    for (
-      let i = Math.max(2, currentPage - delta);
-      i <= Math.min(totalPages - 1, currentPage + delta);
-      i++
-    ) {
-      range.push(i)
-    }
-
-    if (currentPage - delta > 2) {
-      rangeWithDots.push(1, "ellipsis1")
-    } else {
-      rangeWithDots.push(1)
-    }
-
-    rangeWithDots.push(...range)
-
-    if (currentPage + delta < totalPages - 1) {
-      rangeWithDots.push("ellipsis2", totalPages)
-    } else if (totalPages > 1) {
-      rangeWithDots.push(totalPages)
-    }
-
-    return rangeWithDots
-  }
-
   return (
-    <>
-      <div className="mb-8">
+    <div className="space-y-6">
+      <div className="w-full max-w-xl">
         <Input
           type="search"
           placeholder="Search projects..."
-          className="max-w-xl"
           value={value}
           onChange={(e) => {
             setValue(e.target.value)
             handleSearch(e.target.value)
           }}
+          className="w-full"
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {initialItems.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </div>
 
-      <Pagination className="mt-8">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={(e) => {
-                e.preventDefault()
-                if (currentPage > 1) handlePageChange(currentPage - 1)
-              }}
-              aria-disabled={currentPage <= 1}
-              className={
-                currentPage <= 1 ? "pointer-events-none opacity-50" : ""
-              }
-            />
-          </PaginationItem>
-
-          {getPageNumbers().map((item, i) => (
-            <PaginationItem key={i}>
-              {typeof item === "number" ? (
-                <PaginationLink
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    handlePageChange(item)
-                  }}
-                  isActive={currentPage === item}
-                >
-                  {item}
-                </PaginationLink>
-              ) : (
-                <PaginationEllipsis />
-              )}
+      <div className="flex justify-center mt-8">
+        <Pagination>
+          <PaginationContent className="flex-wrap gap-2">
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  if (currentPage > 1) handlePageChange(currentPage - 1)
+                }}
+                aria-disabled={currentPage <= 1}
+                className={
+                  currentPage <= 1 ? "pointer-events-none opacity-50" : ""
+                }
+              />
             </PaginationItem>
-          ))}
 
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={(e) => {
-                e.preventDefault()
-                if (currentPage < totalPages) handlePageChange(currentPage + 1)
-              }}
-              aria-disabled={currentPage >= totalPages}
-              className={
-                currentPage >= totalPages
-                  ? "pointer-events-none opacity-50"
-                  : ""
-              }
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
-    </>
+            {/* Show fewer page numbers on mobile */}
+            <div className="hidden sm:flex items-center gap-2">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const pageNumber = i + 1
+                return (
+                  <PaginationItem key={pageNumber}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handlePageChange(pageNumber)
+                      }}
+                      isActive={currentPage === pageNumber}
+                    >
+                      {pageNumber}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              })}
+              {totalPages > 5 && <PaginationEllipsis />}
+            </div>
+
+            {/* Mobile pagination - just show current page */}
+            <div className="sm:hidden flex items-center">
+              <PaginationItem>
+                <PaginationLink href="#" isActive>
+                  {currentPage}
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationEllipsis />
+            </div>
+
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  if (currentPage < totalPages)
+                    handlePageChange(currentPage + 1)
+                }}
+                aria-disabled={currentPage >= totalPages}
+                className={
+                  currentPage >= totalPages
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
+    </div>
   )
 }

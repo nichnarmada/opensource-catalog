@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useRouter } from "next/navigation"
 
 export function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -12,6 +13,7 @@ export function AuthForm() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const { signIn, signUp } = useAuth()
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,6 +25,8 @@ export function AuthForm() {
       } else {
         await signIn(email, password)
       }
+      // After successful authentication, redirect to home page
+      router.push("/")
     } catch (error) {
       setError(
         error instanceof Error

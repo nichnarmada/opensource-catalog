@@ -4,20 +4,10 @@ export interface GitHubRepo {
   full_name: string
   description: string | null
   html_url: string
-  stargazers_count: number
   language: string | null
+  stargazers_count: number
   topics: string[]
-  license: {
-    key: string
-    name: string
-    url: string
-  } | null
-  created_at: string
-  updated_at: string
-  owner: {
-    login: string
-    avatar_url: string
-  }
+  // Add other GitHub API fields as needed
 }
 
 export interface GitHubSearchResponse {

@@ -11,10 +11,23 @@ import {
 } from "@/components/ui/sidebar"
 import { UserProfile } from "@/components/auth/user-profile"
 import { useAuth } from "@/contexts/auth-context"
+import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export function MainSidebar() {
   const { user } = useAuth()
+  const { toast } = useToast()
+  const router = useRouter()
+
+  const handleAuthRequired = () => {
+    toast({
+      title: "Authentication required",
+      description: "Please sign in to access this feature",
+      variant: "destructive",
+    })
+    router.push("/auth")
+  }
 
   return (
     <Sidebar>
@@ -31,16 +44,25 @@ export function MainSidebar() {
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
-          {user && (
-            <SidebarMenuItem>
+          <SidebarMenuItem>
+            {user ? (
               <Link href="/saved" passHref legacyBehavior>
                 <SidebarMenuButton tooltip="Bookmarks" className="h-10">
                   <Bookmark className="h-5 w-5" />
                   <span>Bookmarks</span>
                 </SidebarMenuButton>
               </Link>
-            </SidebarMenuItem>
-          )}
+            ) : (
+              <SidebarMenuButton
+                tooltip="Bookmarks"
+                className="h-10"
+                onClick={handleAuthRequired}
+              >
+                <Bookmark className="h-5 w-5" />
+                <span>Bookmarks</span>
+              </SidebarMenuButton>
+            )}
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
       <UserProfile />

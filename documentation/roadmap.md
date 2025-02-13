@@ -1,23 +1,25 @@
 # Open Source Brainstorm App Roadmap
 
-This roadmap outlines the planned phases for development and feature enhancements.
+## Progress Tracking
 
----
+### Phase 1: MVP ▓▓▓▓░░░░░░ 40%
 
-## Phase 1: MVP (Minimum Viable Product)
-
-- **Project Setup & Environment**
-  - Initialize Next.js project and configure Firebase.
-  - Establish basic project folder structure.
-- **Core Features**
-  - **Project Listing:** Integrate with GitHub API to display a list of open source projects.
-  - **Project Detail Page:** Create dynamic routing to show detailed information for each project.
-  - **Fork Idea Submission:** Implement a form to allow users to submit fork ideas.
-  - **User Authentication:** Set up Firebase Authentication for user sign-up and login.
-- **Basic UI/UX**
-  - Create simple, responsive layouts for the project list and detail pages.
-- **Testing**
-  - Implement basic unit tests and perform manual testing of core features.
+- [x] Project Setup & Environment
+  - [x] Initialize Next.js project and configure Firebase
+  - [x] Establish basic project folder structure
+- [ ] Core Features
+  - [x] Project Listing with GitHub API
+  - [x] User Authentication with Firebase
+  - [x] Project Bookmarking
+  - [ ] Project Detail Page
+  - [ ] Fork Idea Submission
+- [x] Basic UI/UX
+  - [x] Responsive layout for project list
+  - [x] Sidebar navigation
+  - [x] User authentication flow
+- [ ] Testing
+  - [ ] Unit tests
+  - [ ] Manual testing
 
 ---
 

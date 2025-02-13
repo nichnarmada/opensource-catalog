@@ -5,6 +5,7 @@ export interface GitHubRepo {
   description: string | null
   html_url: string
   language: string | null
+  languages?: string[]
   stargazers_count: number
   topics: string[]
   // Add other GitHub API fields as needed

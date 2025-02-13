@@ -113,11 +113,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
           {project.description}
         </p>
         <div className="flex flex-wrap gap-1.5">
-          {project.language && (
-            <Badge variant="secondary" className="text-xs">
-              {project.language}
+          {project.languages?.map((lang) => (
+            <Badge key={lang} variant="secondary" className="text-xs">
+              {lang}
             </Badge>
-          )}
+          ))}
           {project.topics?.slice(0, 2).map((topic) => (
             <Badge key={topic} variant="outline" className="text-xs">
               {topic}

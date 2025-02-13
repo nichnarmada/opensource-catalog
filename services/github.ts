@@ -1,27 +1,47 @@
 import { GitHubRepo, GitHubSearchResponse } from "@/types/github"
 
+interface RepoLanguages {
+  [key: string]: number // language name -> bytes of code
+}
+
+async function fetchRepoLanguages(fullName: string): Promise<string[]> {
+  const url = `https://api.github.com/repos/${fullName}/languages`
+  const headers: HeadersInit = {
+    Accept: "application/vnd.github.v3+json",
+  }
+
+  if (process.env.GITHUB_TOKEN?.startsWith("ghp_")) {
+    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
+  }
+
+  const response = await fetch(url, { headers })
+  if (!response.ok) return []
+
+  const languages: RepoLanguages = await response.json()
+  // Sort languages by bytes of code and take top 3
+  return Object.entries(languages)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 3)
+    .map(([lang]) => lang)
+}
+
 export const fetchPopularProjects = async (
   page: number = 1,
   perPage: number = 12,
   language?: string,
   searchQuery?: string
 ): Promise<{ items: GitHubRepo[]; total: number }> => {
-  const queryParts = ["stars:>1000"]
+  const query = [
+    searchQuery,
+    language ? `language:${language}` : "",
+    "stars:>100",
+  ]
+    .filter(Boolean)
+    .join(" ")
 
-  // Add language filter if specified
-  if (language && language !== "all") {
-    queryParts.push(`language:${language}`)
-  } else {
-    queryParts.push("language:typescript language:javascript language:python")
-  }
-
-  // Add search term if specified
-  if (searchQuery) {
-    queryParts.push(searchQuery)
-  }
-
-  const query = encodeURIComponent(queryParts.join(" "))
-  const url = `https://api.github.com/search/repositories?q=${query}&sort=stars&order=desc&page=${page}&per_page=${perPage}`
+  const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(
+    query
+  )}&sort=stars&order=desc&page=${page}&per_page=${perPage}`
 
   const headers: HeadersInit = {
     Accept: "application/vnd.github.v3+json",
@@ -52,8 +72,20 @@ export const fetchPopularProjects = async (
     }
 
     const data: GitHubSearchResponse = await response.json()
+
+    // Fetch languages for each repo
+    const itemsWithLanguages = await Promise.all(
+      data.items.map(async (repo) => {
+        const languages = await fetchRepoLanguages(repo.full_name)
+        return {
+          ...repo,
+          languages, // Add this to GitHubRepo type
+        }
+      })
+    )
+
     return {
-      items: data.items,
+      items: itemsWithLanguages,
       total: Math.min(data.total_count, 1000), // GitHub API limits to 1000 results
     }
   } catch (error) {

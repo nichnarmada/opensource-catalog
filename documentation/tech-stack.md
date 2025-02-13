@@ -1,5 +1,26 @@
 # Tech Stack
 
+## Implementation Status
+
+### Frontend ▓▓▓▓▓░░░░░ 50%
+
+- [x] Next.js App Router
+- [x] TypeScript
+- [x] Tailwind CSS
+- [x] shadcn/ui
+- [ ] Advanced components
+- [ ] Form handling
+
+### Backend & Services ▓▓▓░░░░░░░ 30%
+
+- [x] Firebase Authentication
+- [x] Firebase Firestore
+  - [x] User bookmarks
+  - [ ] Fork ideas
+  - [ ] Comments
+- [ ] Firebase Functions
+- [ ] Advanced querying
+
 This project leverages a modern web technology stack to build a robust, scalable, and maintainable application. Below is an overview of the key technologies used:
 
 ---
@@ -26,6 +47,8 @@ This project leverages a modern web technology stack to build a robust, scalable
   A comprehensive app development platform by Google. In this project, Firebase is used for:
   - **Firebase Authentication:** Secure user authentication and authorization.
   - **Firebase Firestore:** A NoSQL document database for storing and syncing app data in real time.
+  - User bookmarks
+  - Project data caching
   - **Firebase Hosting:** Fast and secure hosting for web applications.
   - _(Optional)_ **Firebase Functions:** For implementing serverless backend logic if needed.
 

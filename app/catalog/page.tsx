@@ -4,6 +4,7 @@ import { ProjectFilters } from "@/components/filters/project-filters"
 import { SearchProjects } from "@/components/search-projects"
 import { ProjectListSkeleton } from "@/app/catalog/project-list-skeleton"
 import { ProjectList } from "@/app/catalog/project-list"
+import { isBlockedRepository, shouldBlockRepository } from "@/types/github"
 
 type SearchParams = { [key: string]: string | string[] | undefined }
 
@@ -55,16 +56,44 @@ async function Projects({
   perPage: number
   language?: string
 }) {
-  const { items, total } = await fetchPopularProjects(
-    currentPage,
-    perPage,
-    language
-  )
+  let allFilteredRepos = []
+  let page = currentPage
+  let total = 0
+  const batchSize = perPage * 2 // Fetch 24 at a time
+
+  // Keep fetching until we have enough filtered repos
+  while (allFilteredRepos.length < perPage) {
+    const { items, total: totalCount } = await fetchPopularProjects(
+      page,
+      batchSize,
+      language
+    )
+    total = totalCount
+
+    const filteredBatch = items.filter(
+      (repo) =>
+        !isBlockedRepository(repo.full_name) && !shouldBlockRepository(repo)
+    )
+
+    allFilteredRepos = [...allFilteredRepos, ...filteredBatch]
+
+    // Break if we've fetched everything available
+    if (items.length < batchSize) break
+    page++
+  }
+
+  // Take exactly perPage items
+  const paginatedRepos = allFilteredRepos.slice(0, perPage)
+
+  // Estimate total based on filter ratio from this batch
+  const filterRatio =
+    paginatedRepos.length / (batchSize * (page - currentPage + 1))
+  const estimatedTotal = Math.floor(total * filterRatio)
 
   return (
     <ProjectList
-      initialItems={items}
-      total={total}
+      initialItems={paginatedRepos}
+      total={estimatedTotal}
       currentPage={currentPage}
       perPage={perPage}
     />

@@ -7,24 +7,75 @@ globs:
 ## Directory Structure
 
 ```
-app/                  # Expo Router app directory
-├── api/              # API routes
-├── auth/             # Authentication group
-│   └── 
-├── (main)/           # Main tab navigation group
-│   └── 
-├── layout.tsx        # Root layout
-└── index.tsx         # Entry redirect
-
-components/           # Reusable components
-└── ui/               # Shared components from shadcn-ui (buttons, inputs, etc)
-hooks/                # Custom hooks
-services/             # API and external service integrations
-types/                # TypeScript type definitions
-utils/                # Helper functions and constants
-constants/            # App constants and configuration
-assets/               # Images, fonts, and other static files
-styles/               # Global styles and theme configuration
+/
+├── /app                             # Next.js App Router directory
+│   ├── /api                        # API Route Handlers
+│   │   └── /[...route]/route.ts
+│   ├── /(auth)                     # Auth-related routes group
+│   │   ├── /login/page.tsx
+│   │   └── /signup/page.tsx
+│   ├── /(protected)                # Protected routes group
+│   │   ├── /dashboard/page.tsx
+│   │   └── /profile/page.tsx
+│   ├── /error.tsx                  # Error boundary
+│   ├── /loading.tsx                # Loading UI
+│   ├── /layout.tsx                 # Root layout
+│   └── /page.tsx                   # Home page
+│
+├── /components                      # React components
+│   ├── /ui                          # Reusable UI components (shadcn/ui)
+│   ├── /auth                        # Form components
+│   ├── /layout                      # Layout components
+│   └── /bookmarks                   # Feature-specific components
+│       ├── /bookmark-card.tsx
+│       └── /bookmark-list.tsx
+│
+├── /firebase                       # Firebase-specific code
+│   ├── /collections               # Collection definitions and types
+│   │   ├── /bookmarks.ts
+│   │   └── /users.ts
+│   ├── /services                  # Firebase service functions
+│   │   ├── /bookmarks
+│   │   │   ├── /mutations.ts
+│   │   │   └── /queries.ts
+│   │   └── /users
+│   ├── /utils                    # Firebase utilities
+│   │   ├── /admin.ts
+│   │   └── /client.ts
+│   └── /config
+│       └── /firebase.ts
+│
+├── /lib                           # Shared libraries and utilities
+│   ├── /utils                    # General utilities
+│   │   ├── /date.ts
+│   │   └── /validation.ts
+│   └── /constants               # App constants
+│       └── /config.ts
+│
+├── /hooks                        # Custom React hooks
+│   ├── /firebase               # Firebase-specific hooks
+│   │   ├── /useBookmarks.ts
+│   │   └── /useAuth.ts
+│   └── /use-debounce.ts       # General hooks
+│
+├── /types                       # TypeScript type definitions
+│   ├── /api.ts                # API types
+│   ├── /next.ts              # Next.js specific types
+│   └── /index.ts            # Common types
+│
+├── /styles                    # Global styles
+│   └── /globals.css         # Global CSS
+│
+├── /config                   # App configuration
+│   ├── /site.ts              # Site configuration
+│   └── /navigation.ts        # Navigation configuration
+│
+├── /public                 # Static files
+│   ├── /images
+│   └── /fonts
+│
+└── /scripts               # Build and utility scripts
+    └── /seed-db.ts      # Database seeding script
 ```
 
 ## Core Principles

@@ -1,6 +1,14 @@
 "use client"
 
-import { Home, Bookmark, Library } from "lucide-react"
+import {
+  Home,
+  Bookmark,
+  Library,
+  LogIn,
+  LogOut,
+  User,
+  ChevronUp,
+} from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -8,19 +16,45 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
 } from "@/components/ui/sidebar"
-import { UserProfile } from "@/components/auth/user-profile"
 import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useEffect, useState } from "react"
+import { doc, onSnapshot } from "firebase/firestore"
+import { db } from "@/firebase/config"
 
 export function MainSidebar() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const { toast } = useToast()
   const router = useRouter()
   const pathname = usePathname()
+  const [displayName, setDisplayName] = useState<string>("")
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setDisplayName("")
+      return
+    }
+
+    // Subscribe to user document changes
+    const unsubscribe = onSnapshot(doc(db, "users", user.uid), (doc) => {
+      if (doc.exists()) {
+        setDisplayName(doc.data().displayName)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [user?.uid])
 
   const handleAuthRequired = () => {
     toast({
@@ -99,7 +133,44 @@ export function MainSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
-      <UserProfile />
+      <SidebarFooter className="py-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton className="h-10">
+                    <User className="h-5 w-5" />
+                    <div className="flex flex-col items-start">
+                      <span className="text-sm font-medium">{displayName}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {user.email}
+                      </span>
+                    </div>
+                    <ChevronUp className="ml-auto h-5 w-5" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  side="top"
+                  className="w-[--radix-popper-anchor-width]"
+                >
+                  <DropdownMenuItem onClick={logout} className="h-10">
+                    <LogOut className="mr-2 h-5 w-5" />
+                    <span>Sign out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href="/auth" passHref legacyBehavior>
+                <SidebarMenuButton tooltip="Sign In" className="h-10">
+                  <LogIn className="h-5 w-5" />
+                  <span>Sign In</span>
+                </SidebarMenuButton>
+              </Link>
+            )}
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   )
 }

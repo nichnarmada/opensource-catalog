@@ -38,7 +38,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signUp = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password)
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    )
+
+    // Create user profile in Firestore
+    const response = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user: userCredential.user,
+      }),
+    })
+
+    if (!response.ok) {
+      // If profile creation fails, delete the auth user to maintain consistency
+      await userCredential.user.delete()
+      throw new Error("Failed to create user profile")
+    }
   }
 
   const logout = async () => {

@@ -9,7 +9,6 @@ import {
   addBookmark,
   removeBookmark,
   isBookmarked,
-  getBookmarkStats,
 } from "@/firebase/services/bookmarks"
 import { BookmarkStats } from "@/firebase/collections/bookmarks/types"
 import {
@@ -110,7 +109,7 @@ export function ProjectList({
         {
           displayName:
             user.displayName || user.email?.split("@")[0] || "Anonymous",
-          photoURL: user.photoURL ?? undefined,
+          photoURL: user.photoURL ?? "",
         },
         project,
         true

@@ -1,5 +1,5 @@
 import { GitHubRepo } from "../../../types/github"
-import { UserProfile } from "../../../types/user"
+import { UserProfile } from "@/firebase/collections/users/types"
 
 export interface Bookmark {
   id: string

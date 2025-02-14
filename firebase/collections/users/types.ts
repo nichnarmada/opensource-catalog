@@ -1,7 +1,13 @@
-import type { UserProfile } from "@/firebase/collections/users/types"
 import type { Bookmark } from "@/firebase/collections/bookmarks/types"
 
-export type { UserProfile }
+export interface UserProfile {
+  id: string
+  displayName: string
+  photoURL: string
+  bio: string
+  interests: string[]
+  createdAt: Date
+}
 
 // Firebase-specific types
 export type UserProfileCreate = Omit<UserProfile, "id">

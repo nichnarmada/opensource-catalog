@@ -1,15 +1,11 @@
 "use client"
 
-import {
-  getUserBookmarks,
-  removeBookmark,
-  getBookmarkStats,
-} from "@/firebase/services/bookmarks"
+import { getUserBookmarks, removeBookmark } from "@/firebase/services/bookmarks"
 import { ProjectCard } from "@/components/project-card"
 import { useAuth } from "@/contexts/auth-context"
 import { useEffect, useState } from "react"
 import { redirect } from "next/navigation"
-import { Bookmark, BookmarkStats } from "@/firebase/collections/bookmarks/types"
+import { Bookmark } from "@/firebase/collections/bookmarks/types"
 
 export default function SavedPage() {
   const { user } = useAuth()
@@ -80,7 +76,7 @@ export default function SavedPage() {
                     {
                       id: bookmark.userId,
                       displayName: bookmark.userProfile.displayName,
-                      photoURL: bookmark.userProfile.photoURL ?? undefined,
+                      photoURL: bookmark.userProfile.photoURL ?? "",
                     },
                   ],
                 }}

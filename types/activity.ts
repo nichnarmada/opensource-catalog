@@ -1,5 +1,5 @@
 import { GitHubRepo } from "./github"
-import { UserProfile } from "./user"
+import { UserProfile } from "@/firebase/collections/users/types"
 
 export type ActivityType = "bookmark" | "comment" | "fork_idea" | "star"
 

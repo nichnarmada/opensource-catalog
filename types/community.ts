@@ -1,5 +1,5 @@
-import { Bookmark } from "./bookmarks"
-import { UserProfile } from "./user"
+import { Bookmark } from "@/firebase/collections/bookmarks/types"
+import { UserProfile } from "@/firebase/collections/users/types"
 
 export interface UserProfileWithStats extends UserProfile {
   totalBookmarks: number

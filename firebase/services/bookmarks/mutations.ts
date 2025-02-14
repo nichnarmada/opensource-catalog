@@ -8,14 +8,14 @@ import {
   getDoc,
 } from "firebase/firestore"
 import { db } from "@/firebase/config"
-import { type BookmarkCreate } from "../../collections/bookmarks/types"
+import { type BookmarkCreate } from "@/firebase/collections/bookmarks/types"
 import {
   BOOKMARKS_COLLECTION,
   REPO_STATS_COLLECTION,
-} from "../../collections/bookmarks/constants"
-import { UserProfile } from "../../../types/user"
-import { GitHubRepo } from "../../../types/github"
-import { getBookmarkByRepoId } from "./queries"
+} from "@/firebase/collections/bookmarks/constants"
+import { UserProfile } from "@/firebase/collections/users/types"
+import { GitHubRepo } from "@/types/github"
+import { getBookmarkByRepoId } from "@/firebase/services/bookmarks/queries"
 
 export async function addBookmark(
   userId: string,

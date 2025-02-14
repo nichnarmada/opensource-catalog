@@ -4,7 +4,11 @@ import { ProjectFilters } from "@/components/filters/project-filters"
 import { SearchProjects } from "@/components/search-projects"
 import { ProjectListSkeleton } from "@/app/catalog/project-list-skeleton"
 import { ProjectList } from "@/app/catalog/project-list"
-import { isBlockedRepository, shouldBlockRepository } from "@/types/github"
+import {
+  GitHubRepo,
+  isBlockedRepository,
+  shouldBlockRepository,
+} from "@/types/github"
 
 type SearchParams = { [key: string]: string | string[] | undefined }
 
@@ -56,7 +60,7 @@ async function Projects({
   perPage: number
   language?: string
 }) {
-  let allFilteredRepos = []
+  let allFilteredRepos: GitHubRepo[] = []
   let page = currentPage
   let total = 0
   const batchSize = perPage * 2 // Fetch 24 at a time

@@ -16,6 +16,7 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination"
+import { ProjectListSkeleton } from "./project-list-skeleton"
 
 interface ProjectListProps {
   initialItems: GitHubRepo[]
@@ -74,6 +75,7 @@ export function ProjectList({
     Record<number, BookmarkStats>
   >({})
   const totalPages = Math.ceil(total / perPage)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Load initial bookmark states and stats
   useEffect(() => {
@@ -123,12 +125,22 @@ export function ProjectList({
   }
 
   const handlePageChange = (page: number) => {
+    setIsLoading(true)
     const params = new URLSearchParams(searchParams)
     params.set("page", page.toString())
     router.push(`/catalog?${params.toString()}`)
   }
 
+  // Reset loading when items change
+  useEffect(() => {
+    setIsLoading(false)
+  }, [initialItems])
+
   const pages = getPageNumbers(currentPage, totalPages)
+
+  if (isLoading) {
+    return <ProjectListSkeleton />
+  }
 
   return (
     <div className="space-y-4">

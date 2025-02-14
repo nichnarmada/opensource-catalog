@@ -4,9 +4,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 export function ProjectListSkeleton() {
   return (
     <div className="space-y-8">
-      {/* Search Input Skeleton */}
-      <Skeleton className="h-10 max-w-xl" />
-
       {/* Projects Grid Skeleton */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[...Array(12)].map((_, i) => (
@@ -16,7 +13,7 @@ export function ProjectListSkeleton() {
               <Skeleton className="h-4 w-1/2 mt-2" />
             </CardHeader>
             <CardContent>
-              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-16 w-full" />
               <div className="flex gap-2 mt-4">
                 <Skeleton className="h-6 w-16" />
                 <Skeleton className="h-6 w-16" />

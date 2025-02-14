@@ -61,12 +61,13 @@ async function Projects({
   language?: string
 }) {
   let allFilteredRepos: GitHubRepo[] = []
-  let page = currentPage
+  let page = 1 // Always start from page 1
   let total = 0
-  const batchSize = perPage * 2 // Fetch 24 at a time
+  const batchSize = perPage * 2
+  const neededIndex = (currentPage - 1) * perPage + perPage - 1 // Last index we need
 
-  // Keep fetching until we have enough filtered repos
-  while (allFilteredRepos.length < perPage) {
+  // Keep fetching until we have enough for the current page
+  while (allFilteredRepos.length <= neededIndex) {
     const { items, total: totalCount } = await fetchPopularProjects(
       page,
       batchSize,
@@ -81,17 +82,19 @@ async function Projects({
 
     allFilteredRepos = [...allFilteredRepos, ...filteredBatch]
 
-    // Break if we've fetched everything available
+    // Break if no more results
     if (items.length < batchSize) break
     page++
   }
 
-  // Take exactly perPage items
-  const paginatedRepos = allFilteredRepos.slice(0, perPage)
+  // Get the correct slice for current page
+  const startIndex = (currentPage - 1) * perPage
+  const paginatedRepos = allFilteredRepos.slice(
+    startIndex,
+    startIndex + perPage
+  )
 
-  // Estimate total based on filter ratio from this batch
-  const filterRatio =
-    paginatedRepos.length / (batchSize * (page - currentPage + 1))
+  const filterRatio = allFilteredRepos.length / ((page - 1) * batchSize)
   const estimatedTotal = Math.floor(total * filterRatio)
 
   return (

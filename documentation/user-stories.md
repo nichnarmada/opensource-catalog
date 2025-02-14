@@ -6,7 +6,7 @@ Below is a collection of user stories to guide the development of the app. Each 
 
 ## As a Visitor
 
-- **US1: Browse Projects**_As a visitor, I want to view a list of open source projects so that I can discover interesting projects to explore._
+- **US1: Browse Projects**_As a visitor, I want to view a curated list of practical open source projects, filtered to exclude frameworks, learning resources, and meta-repositories, so that I can discover actual applications and tools to explore._
 - **US2: View Project Details**_As a visitor, I want to click on a project to view detailed information (description, repository link, and fork ideas) so that I can understand its context and potential._
 - **US3: Read Fork Ideas**
   _As a visitor, I want to read fork ideas submitted by other users so that I can see various suggestions for improvements or new features._
@@ -41,6 +41,9 @@ These user stories form the basis for the features and functionality of the Open
 ### Visitor Stories ▓▓▓▓░░ 67%
 
 - [x] **US1:** Browse Projects
+- [x] Smart repository filtering
+- [x] Blocked repository list
+- [x] Keyword-based filtering
 - [x] **US2:** View Project Details (Basic)
 - [ ] **US3:** Read Fork Ideas
 
@@ -48,7 +51,12 @@ These user stories form the basis for the features and functionality of the Open
 
 - [x] **US4:** User Authentication
 - [x] **US5:** Bookmark Projects
+- [x] Add/remove bookmarks
+- [x] See bookmark stats
+- [x] View recent bookmarkers
 - [x] **US6:** View Bookmarks
+- [x] Personal bookmarks page
+- [x] Remove bookmarks from saved list
 - [ ] **US7:** Submit Fork Ideas
 - [ ] **US8:** Edit/Delete Fork Ideas
 - [ ] **US9:** Search & Filter Projects

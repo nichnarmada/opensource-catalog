@@ -9,8 +9,14 @@
   - [x] Establish basic project folder structure
 - [ ] Core Features
   - [x] Project Listing with GitHub API
+  - [x] Smart filtering system
+  - [x] Blocked repository list
+  - [x] Keyword-based filtering
   - [x] User Authentication with Firebase
   - [x] Project Bookmarking
+  - [x] Bookmark/Unbookmark functionality
+  - [x] Bookmark stats and recent bookmarkers
+  - [x] Personal bookmarks page
   - [ ] Project Detail Page
   - [ ] Fork Idea Submission
 - [x] Basic UI/UX

@@ -4,12 +4,17 @@
 
 Open Source Brainstorm is a collaborative web platform designed to help developers and enthusiasts explore, discuss, and ideate on existing open source projects. It serves as a centralized hub where users can browse a curated list of projects (sourced from GitHub), view detailed project information, and share their own ideas for forking or enhancing these projects.
 
+The platform focuses on discovering actual applications and tools, filtering out learning resources, frameworks, and meta-repositories to ensure users find forkable projects.
+
 ---
 
 **Key Features:**
 
 - **Project Listing:**  
-  Browse a curated list of open source projects with essential information such as name, description, and GitHub repository link.
+  Browse a filtered list of practical open source projects, excluding frameworks, learning resources, and meta-repositories.
+
+- **Project Bookmarking:**
+  Save interesting projects to your personal collection and see who else has bookmarked them.
 
 - **Project Details:**  
   View comprehensive details about each project, including metadata from GitHub and user-submitted fork ideas.

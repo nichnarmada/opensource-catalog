@@ -1,4 +1,4 @@
-import { db } from "@/config/firebase"
+import { db } from "@/firebase/config"
 import { collection, getDocs, addDoc, query, where } from "firebase/firestore"
 
 console.log("languages.ts loaded, db:", db)

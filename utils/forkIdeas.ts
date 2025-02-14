@@ -7,7 +7,7 @@ import {
   QuerySnapshot,
   DocumentData,
 } from "firebase/firestore"
-import { db } from "../config/firebase"
+import { db } from "@/firebase/config"
 import { ForkIdea } from "../types/forkIdea"
 
 const FORK_IDEAS_COLLECTION = "forkIdeas"

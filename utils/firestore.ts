@@ -9,7 +9,7 @@ import {
   QuerySnapshot,
   DocumentData,
 } from "firebase/firestore"
-import { db } from "../config/firebase"
+import { db } from "@/firebase/config"
 import { Project } from "../types/project"
 
 // Collection name for projects

@@ -1,12 +1,12 @@
-import { GitHubRepo } from "./github"
-import { UserProfile } from "./user"
+import { GitHubRepo } from "../../../types/github"
+import { UserProfile } from "../../../types/user"
 
 export interface Bookmark {
   id: string
   userId: string
   userProfile: {
     displayName: string
-    photoURL: string | null | undefined // Allow null
+    photoURL: string | null | undefined
   }
   repo: Pick<
     GitHubRepo,
@@ -20,21 +20,12 @@ export interface Bookmark {
     | "topics"
   >
   createdAt: Date
-  isPublic: boolean // New field for privacy control
+  isPublic: boolean
 }
 
-// Remove empty interfaces and replace with proper types
 export type BookmarkCreate = Omit<Bookmark, "id">
 export type BookmarkUpdate = Partial<BookmarkCreate>
 
-// New type for the bookmark feed
-export interface ActivityFeed {
-  activities: Activity[]
-  lastVisible?: Date // For pagination
-  hasMore: boolean
-}
-
-// New type for bookmark stats
 export interface BookmarkStats {
   repoId: number
   repo: Pick<
@@ -45,7 +36,32 @@ export interface BookmarkStats {
   recentBookmarkers: Array<Pick<UserProfile, "id" | "displayName" | "photoURL">>
 }
 
+// Activity types for the feed
 export interface Activity extends Bookmark {
   activityType: "bookmark"
   timestamp: Date
+}
+
+export interface ActivityFeed {
+  activities: Activity[]
+  lastVisible?: Date
+  hasMore: boolean
+}
+
+// BookmarkActivity is our internal representation
+export interface BookmarkActivity extends Omit<Bookmark, "userProfile"> {
+  activityType: "bookmark"
+  type: "bookmark"
+  timestamp: Date
+  userProfile: {
+    displayName: string
+    photoURL?: string | undefined
+  }
+}
+
+// BookmarkFeed is our internal representation
+export interface BookmarkFeed {
+  activities: BookmarkActivity[]
+  lastVisible?: Date
+  hasMore: boolean
 }

@@ -5,8 +5,13 @@ import { ProjectCard } from "@/components/project-card"
 import { GitHubRepo } from "@/types/github"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
-import { addBookmark, removeBookmark, isBookmarked } from "@/services/bookmarks"
-import { BookmarkStats } from "@/types/bookmarks"
+import {
+  addBookmark,
+  removeBookmark,
+  isBookmarked,
+  getBookmarkStats,
+} from "@/firebase/services/bookmarks"
+import { BookmarkStats } from "@/firebase/collections/bookmarks/types"
 import {
   Pagination,
   PaginationContent,

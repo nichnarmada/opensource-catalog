@@ -3,6 +3,7 @@
 import { ActivityFeed as ActivityFeedType } from "@/types/activity"
 import { useState } from "react"
 import { ActivityFeed } from "@/components/community/activity-feed"
+import { getPublicBookmarkFeed } from "@/firebase/services/bookmarks"
 
 interface ActivityFeedWrapperProps {
   initialFeed: ActivityFeedType
@@ -19,11 +20,7 @@ export function ActivityFeedWrapper({ initialFeed }: ActivityFeedWrapperProps) {
 
     setIsLoading(true)
     try {
-      const response = await fetch(
-        `/api/bookmarks/feed?lastVisible=${lastVisible?.toISOString()}`
-      )
-      const data: ActivityFeedType = await response.json()
-
+      const data = await getPublicBookmarkFeed(10, lastVisible)
       setActivities((prev) => [...prev, ...data.activities])
       setHasMore(data.hasMore)
       setLastVisible(data.lastVisible)

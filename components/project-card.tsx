@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { BookmarkStats } from "@/types/bookmarks"
+import { BookmarkStats } from "@/firebase/collections/bookmarks/types"
 
 interface ProjectCardProps {
   project: GitHubRepo

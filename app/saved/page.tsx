@@ -1,12 +1,15 @@
 "use client"
 
-import { getUserBookmarks } from "@/services/bookmarks"
+import {
+  getUserBookmarks,
+  removeBookmark,
+  getBookmarkStats,
+} from "@/firebase/services/bookmarks"
 import { ProjectCard } from "@/components/project-card"
 import { useAuth } from "@/contexts/auth-context"
 import { useEffect, useState } from "react"
 import { redirect } from "next/navigation"
-import { Bookmark } from "@/types/bookmarks"
-import { removeBookmark } from "@/services/bookmarks"
+import { Bookmark, BookmarkStats } from "@/firebase/collections/bookmarks/types"
 
 export default function SavedPage() {
   const { user } = useAuth()

@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { getPublicBookmarkFeed } from "@/services/bookmarks"
+import { getPublicBookmarkFeed } from "@/firebase/services/bookmarks"
 import { ActivityFeedWrapper } from "./activity-feed-wrapper"
 
 export default async function HomePage() {

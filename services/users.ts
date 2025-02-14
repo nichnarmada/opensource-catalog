@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore"
 import { UserProfile } from "@/types/user"
 import { UserProfileWithStats } from "@/types/community"
-import { Bookmark } from "@/types/bookmarks"
+import { Bookmark } from "@/firebase/collections/bookmarks/types"
 
 export async function createUserProfile(
   userId: string,

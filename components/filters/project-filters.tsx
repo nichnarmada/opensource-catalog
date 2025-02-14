@@ -3,78 +3,42 @@
 import { Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useRouter, useSearchParams } from "next/navigation"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { useAuth } from "@/contexts/auth-context"
-import { useToast } from "@/hooks/use-toast"
-import { useState, useEffect } from "react"
-import { Language, getLanguages, addLanguage } from "@/services/languages"
+import { Language } from "@/firebase/services/languages"
+import { useState } from "react"
 
-export function ProjectFilters() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { user } = useAuth()
-  const { toast } = useToast()
-  const currentLanguage = searchParams.get("language") || "all"
+interface ProjectFiltersProps {
+  languages: Language[]
+  currentLanguage: string
+  isLoading: boolean
+  onLanguageChange: (language: string) => void
+  onAddLanguage: (name: string) => Promise<void>
+  isAuthenticated: boolean
+}
 
-  const [languages, setLanguages] = useState<Language[]>([])
+export function ProjectFilters({
+  languages,
+  currentLanguage,
+  isLoading,
+  onLanguageChange,
+  onAddLanguage,
+  isAuthenticated,
+}: ProjectFiltersProps) {
   const [isAdding, setIsAdding] = useState(false)
   const [newLanguage, setNewLanguage] = useState("")
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    getLanguages()
-      .then(setLanguages)
-      .catch((error) => {
-        console.error("Failed to fetch languages:", error)
-        toast({
-          title: "Error",
-          description: "Failed to load languages",
-          variant: "destructive",
-        })
-      })
-      .finally(() => setLoading(false))
-  }, [toast])
-
-  const handleLanguageChange = (value: string) => {
-    const params = new URLSearchParams(searchParams)
-    if (value && value !== "all") {
-      params.set("language", value.toLowerCase())
-    } else {
-      params.delete("language")
-    }
-    router.push(`/catalog?${params.toString()}`)
-  }
 
   const handleAddLanguage = async () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to add languages",
-        variant: "destructive",
-      })
-      return
-    }
-
+    if (!isAuthenticated) return
     if (!newLanguage.trim()) return
 
     try {
-      const language = await addLanguage(newLanguage.trim(), user.uid)
-      setLanguages([...languages, language])
+      await onAddLanguage(newLanguage.trim())
       setNewLanguage("")
       setIsAdding(false)
-      toast({
-        title: "Language added",
-        description: `${newLanguage} has been added to the list`,
-      })
     } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to add language",
-        variant: "destructive",
-      })
+      // Error handling is now done at the page level
+      throw error
     }
   }
 
@@ -86,13 +50,13 @@ export function ProjectFilters() {
           <div className="space-y-4">
             <div className="space-y-3">
               <Label>Language</Label>
-              {loading ? (
+              {isLoading ? (
                 <div className="text-sm text-muted-foreground">Loading...</div>
               ) : (
                 <div className="space-y-2">
                   <RadioGroup
                     value={currentLanguage}
-                    onValueChange={handleLanguageChange}
+                    onValueChange={onLanguageChange}
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="all" id="all" />
@@ -156,6 +120,7 @@ export function ProjectFilters() {
                       variant="ghost"
                       className="w-full justify-start text-sm font-normal h-8"
                       onClick={() => setIsAdding(true)}
+                      disabled={!isAuthenticated}
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add language

@@ -38,6 +38,7 @@ export default async function CatalogPage({ searchParams }: PageProps) {
               currentPage={currentPage}
               perPage={perPage}
               language={language}
+              searchQuery={searchQuery}
             />
           </Suspense>
         </CatalogContent>
@@ -54,22 +55,26 @@ async function Projects({
   currentPage,
   perPage,
   language,
+  searchQuery,
 }: {
   currentPage: number
   perPage: number
   language?: string
+  searchQuery: string
 }) {
   try {
     console.log("Fetching repositories with params:", {
       currentPage,
       perPage,
       language,
+      searchQuery,
     })
     const { repositories, total } = await getFirestoreRepositories({
       language,
       perPage,
       minStars: 100,
       currentPage,
+      searchQuery,
     })
     console.log("Fetched repositories:", { count: repositories.length, total })
 

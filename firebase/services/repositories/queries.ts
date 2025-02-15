@@ -7,7 +7,6 @@ import {
   limit,
   startAfter,
   getDocs,
-  QueryDocumentSnapshot,
 } from "firebase/firestore"
 import {
   Repository,
@@ -54,12 +53,23 @@ export async function getFirestoreRepositories({
   // Get one document before the page we want to start from
   let startAtDoc
   if (skipCount > 0) {
-    const startAtQuery = query(
+    let startAtQuery = query(
       collection(db, "repositories"),
       where("stargazers_count", ">=", minStars),
       orderBy("stargazers_count", "desc"),
       limit(skipCount)
     )
+
+    if (language && language !== "all") {
+      startAtQuery = query(startAtQuery, where("language", "==", language))
+    }
+    if (topics.length === 1) {
+      startAtQuery = query(
+        startAtQuery,
+        where("topics", "array-contains", topics[0])
+      )
+    }
+
     const startAtSnapshot = await getDocs(startAtQuery)
     startAtDoc = startAtSnapshot.docs[startAtSnapshot.docs.length - 1]
   }
@@ -92,10 +102,17 @@ export async function getFirestoreRepositories({
   })
 
   return {
-    repositories: snapshot.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    })) as Repository[],
+    repositories: snapshot.docs.map((doc) => {
+      const data = doc.data()
+      return {
+        ...data,
+        id: doc.id,
+        // Convert Timestamps to ISO strings
+        created_at: data.created_at?.toDate().toISOString(),
+        updated_at: data.updated_at?.toDate().toISOString(),
+        last_synced: data.last_synced?.toDate().toISOString(),
+      }
+    }) as Repository[],
     lastVisible: snapshot.docs[snapshot.docs.length - 1],
     total: countSnapshot.size,
   }

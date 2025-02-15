@@ -1,4 +1,3 @@
-import { Timestamp } from "firebase/firestore"
 import { BLOCKED_REPOSITORIES } from "./constants"
 
 export interface Repository {
@@ -21,9 +20,9 @@ export interface Repository {
   }
 
   // Timestamps
-  last_synced: Timestamp
-  created_at: Timestamp
-  updated_at: Timestamp
+  last_synced: string
+  created_at: string
+  updated_at: string
 }
 
 export type BlockedRepository = (typeof BLOCKED_REPOSITORIES)[number]

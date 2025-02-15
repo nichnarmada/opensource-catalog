@@ -14,7 +14,13 @@ export async function addRepositories(repos: Repository[]) {
   for (const repo of repos) {
     const processedRepo = processRepoForFirestore(repo)
     const repoRef = doc(collection(db, REPOSITORY_COLLECTION), processedRepo.id)
-    batch.set(repoRef, processedRepo, { merge: true })
+    batch.set(
+      repoRef,
+      {
+        ...processedRepo,
+      },
+      { merge: true }
+    )
   }
 
   await batch.commit()
@@ -23,6 +29,8 @@ export async function addRepositories(repos: Repository[]) {
 function processRepoForFirestore(repo: Repository): Repository {
   const isBlocked =
     isBlockedRepository(repo.full_name) || shouldBlockRepository(repo)
+
+  const now = Timestamp.now()
 
   return {
     id: repo.id.toString(),
@@ -44,9 +52,9 @@ function processRepoForFirestore(repo: Repository): Repository {
         }
       : undefined,
 
-    last_synced: Timestamp.now(),
-    created_at: Timestamp.now(),
-    updated_at: Timestamp.now(),
+    last_synced: now.toDate().toISOString(),
+    created_at: now.toDate().toISOString(),
+    updated_at: now.toDate().toISOString(),
   }
 }
 

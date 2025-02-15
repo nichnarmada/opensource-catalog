@@ -75,15 +75,15 @@ export default function SavedPage() {
                   recentBookmarkers: [
                     {
                       id: bookmark.userId,
-                      displayName: bookmark.userProfile.displayName,
-                      photoURL: bookmark.userProfile.photoURL ?? "",
+                      displayName: bookmark.user.displayName,
+                      photoURL: bookmark.user.photoURL ?? "",
                     },
                   ],
                 }}
                 isBookmarked={true}
                 onBookmarkToggle={async () => {
                   // Handle unbookmark
-                  await removeBookmark(user.uid, bookmark.repo.id)
+                  await removeBookmark(user.uid, parseInt(bookmark.repo.id))
                   setBookmarks(bookmarks.filter((b) => b.id !== bookmark.id))
                 }}
               />

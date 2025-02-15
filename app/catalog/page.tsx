@@ -1,13 +1,8 @@
-import { fetchPopularProjects } from "@/services/github"
 import { Suspense } from "react"
 import { ProjectListSkeleton } from "@/app/catalog/project-list-skeleton"
 import { ProjectList } from "@/app/catalog/project-list"
-import {
-  GitHubRepo,
-  isBlockedRepository,
-  shouldBlockRepository,
-} from "@/types/github"
 import { CatalogContent } from "@/app/catalog/catalog-content"
+import { getFirestoreRepositories } from "@/firebase/services/repositories"
 
 type SearchParams = { [key: string]: string | string[] | undefined }
 
@@ -65,59 +60,27 @@ async function Projects({
   language?: string
 }) {
   try {
-    let allFilteredRepos: GitHubRepo[] = []
-    let page = 1 // Always start from page 1
-    let total = 0
-    const batchSize = perPage * 2
-    const neededIndex = (currentPage - 1) * perPage + perPage - 1 // Last index we need
-
-    // Keep fetching until we have enough for the current page
-    while (allFilteredRepos.length <= neededIndex) {
-      const { items, total: totalCount } = await fetchPopularProjects(
-        page,
-        batchSize,
-        language
-      )
-      total = totalCount
-
-      const filteredBatch = items.filter(
-        (repo) =>
-          !isBlockedRepository(repo.full_name) && !shouldBlockRepository(repo)
-      )
-
-      allFilteredRepos = [...allFilteredRepos, ...filteredBatch]
-
-      // Break if no more results
-      if (items.length < batchSize) break
-      page++
-    }
-
-    // Get the correct slice for current page
-    const startIndex = (currentPage - 1) * perPage
-    const paginatedRepos = allFilteredRepos.slice(
-      startIndex,
-      startIndex + perPage
-    )
-
-    const filterRatio = allFilteredRepos.length / ((page - 1) * batchSize)
-    const estimatedTotal = Math.floor(total * filterRatio)
+    const { repositories, total } = await getFirestoreRepositories({
+      language,
+      page: currentPage,
+      perPage,
+      minStars: 100,
+    })
 
     return (
       <ProjectList
-        initialItems={paginatedRepos}
-        total={estimatedTotal}
+        initialItems={repositories}
+        total={total}
         currentPage={currentPage}
         perPage={perPage}
       />
     )
   } catch (error) {
-    // Handle GitHub API errors gracefully
     console.error("Failed to fetch projects:", error)
     return (
       <div className="text-center py-8">
         <p className="text-muted-foreground">
-          Failed to load projects. GitHub API rate limit may have been exceeded.
-          Please try again in a few minutes.
+          Failed to load projects. Please try again later.
         </p>
       </div>
     )

@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams } from "next/navigation"
 import { ProjectCard } from "@/components/project-card"
-import { GitHubRepo } from "@/types/github"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import {
@@ -21,9 +20,10 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination"
 import { ProjectListSkeleton } from "./project-list-skeleton"
+import { Repository } from "@/firebase/collections/repositories/types"
 
 interface ProjectListProps {
-  initialItems: GitHubRepo[]
+  initialItems: Repository[]
   total: number
   currentPage: number
   perPage: number
@@ -72,11 +72,11 @@ export function ProjectList({
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [bookmarkStates, setBookmarkStates] = useState<Record<number, boolean>>(
+  const [bookmarkStates, setBookmarkStates] = useState<Record<string, boolean>>(
     {}
   )
   const [bookmarkStats, setBookmarkStats] = useState<
-    Record<number, BookmarkStats>
+    Record<string, BookmarkStats>
   >({})
   const totalPages = Math.ceil(total / perPage)
   const [isLoading, setIsLoading] = useState(false)
@@ -87,7 +87,7 @@ export function ProjectList({
 
     initialItems.forEach(async (project) => {
       const [bookmarked, stats] = await Promise.all([
-        isBookmarked(user.uid, project.id) as Promise<boolean>,
+        isBookmarked(user.uid, parseInt(project.id)),
         fetch(`/api/bookmarks/stats/${project.id}`).then((res) => res.json()),
       ])
 
@@ -96,13 +96,13 @@ export function ProjectList({
     })
   }, [initialItems, user])
 
-  const handleBookmarkToggle = async (project: GitHubRepo) => {
+  const handleBookmarkToggle = async (project: Repository) => {
     if (!user) return
 
     const isCurrentlyBookmarked = bookmarkStates[project.id]
 
     if (isCurrentlyBookmarked) {
-      await removeBookmark(user.uid, project.id)
+      await removeBookmark(user.uid, parseInt(project.id))
     } else {
       await addBookmark(
         user.uid,
@@ -111,7 +111,10 @@ export function ProjectList({
             user.displayName || user.email?.split("@")[0] || "Anonymous",
           photoURL: user.photoURL ?? "",
         },
-        project,
+        {
+          ...project,
+          id: project.id.toString(),
+        },
         true
       )
     }

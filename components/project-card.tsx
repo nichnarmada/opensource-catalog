@@ -1,7 +1,6 @@
 "use client"
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { GitHubRepo } from "@/types/github"
 import { Badge } from "@/components/ui/badge"
 import { Star, Bookmark, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -10,12 +9,13 @@ import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { BookmarkStats } from "@/firebase/collections/bookmarks/types"
+import { Repository } from "@/firebase/collections/repositories/types"
 
 interface ProjectCardProps {
-  project: GitHubRepo
+  project: Repository // Only use Repository type
   bookmarkStats: BookmarkStats
   isBookmarked: boolean
-  onBookmarkToggle: () => Promise<void>
+  onBookmarkToggle: () => void
 }
 
 export function ProjectCard({

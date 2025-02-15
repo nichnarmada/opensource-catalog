@@ -60,11 +60,18 @@ async function Projects({
   language?: string
 }) {
   try {
+    console.log("Fetching repositories with params:", {
+      currentPage,
+      perPage,
+      language,
+    })
     const { repositories, total } = await getFirestoreRepositories({
       language,
       perPage,
       minStars: 100,
+      currentPage,
     })
+    console.log("Fetched repositories:", { count: repositories.length, total })
 
     return (
       <ProjectList

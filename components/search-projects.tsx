@@ -23,7 +23,7 @@ export function SearchProjects({ initialValue = "" }: SearchProjectsProps) {
       params.delete("q")
     }
     params.set("page", "1")
-    router.push(`/?${params.toString()}`)
+    router.push(`/catalog?${params.toString()}`)
   }, 300)
 
   return (

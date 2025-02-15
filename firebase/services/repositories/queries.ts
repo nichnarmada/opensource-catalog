@@ -19,7 +19,7 @@ interface GetRepositoriesOptions {
   minStars?: number
   topics?: string[]
   perPage?: number
-  lastVisible?: QueryDocumentSnapshot
+  currentPage?: number
 }
 
 export async function getFirestoreRepositories({
@@ -27,55 +27,76 @@ export async function getFirestoreRepositories({
   minStars = 0,
   topics = [],
   perPage = 12,
-  lastVisible,
+  currentPage = 1,
 }: GetRepositoriesOptions = {}) {
+  console.log("Collection name:", REPOSITORY_COLLECTION)
+
   // First, get total count
-  const countQuery = query(
-    collection(db, REPOSITORY_COLLECTION),
-    where("is_blocked", "==", false),
+  let countQuery = query(
+    collection(db, "repositories"),
     where("stargazers_count", ">=", minStars)
   )
 
-  if (language) {
-    query(countQuery, where("language", "==", language))
+  if (language && language !== "all") {
+    countQuery = query(countQuery, where("language", "==", language))
   }
 
   if (topics.length === 1) {
-    query(countQuery, where("topics", "array-contains", topics[0]))
+    countQuery = query(countQuery, where("topics", "array-contains", topics[0]))
   }
 
   const countSnapshot = await getDocs(countQuery)
-  const total = countSnapshot.size
+  console.log("Count snapshot size:", countSnapshot.size)
+
+  // Calculate how many documents to skip
+  const skipCount = (currentPage - 1) * perPage
+
+  // Get one document before the page we want to start from
+  let startAtDoc
+  if (skipCount > 0) {
+    const startAtQuery = query(
+      collection(db, "repositories"),
+      where("stargazers_count", ">=", minStars),
+      orderBy("stargazers_count", "desc"),
+      limit(skipCount)
+    )
+    const startAtSnapshot = await getDocs(startAtQuery)
+    startAtDoc = startAtSnapshot.docs[startAtSnapshot.docs.length - 1]
+  }
 
   // Then get paginated results
   let q = query(
-    collection(db, REPOSITORY_COLLECTION),
-    where("is_blocked", "==", false),
+    collection(db, "repositories"),
     where("stargazers_count", ">=", minStars),
     orderBy("stargazers_count", "desc")
   )
 
-  if (language) {
+  if (language && language !== "all") {
     q = query(q, where("language", "==", language))
   }
 
-  // Note: For topics, we might need a different strategy if filtering by multiple topics
-  // This is because Firestore has limitations on array-contains-any queries
   if (topics.length === 1) {
     q = query(q, where("topics", "array-contains", topics[0]))
   }
 
-  if (lastVisible) {
-    q = query(q, startAfter(lastVisible))
+  if (startAtDoc) {
+    q = query(q, startAfter(startAtDoc))
   }
 
   q = query(q, limit(perPage))
 
   const snapshot = await getDocs(q)
+  console.log("Page results:", {
+    page: currentPage,
+    count: snapshot.docs.length,
+  })
 
   return {
-    repositories: snapshot.docs.map((doc) => doc.data() as Repository),
+    repositories: snapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    })) as Repository[],
     lastVisible: snapshot.docs[snapshot.docs.length - 1],
-    total, // Now returns actual total count
+    total: countSnapshot.size,
   }
 }

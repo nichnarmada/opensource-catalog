@@ -5,7 +5,10 @@ import {
   isBlockedRepository,
   shouldBlockRepository,
 } from "@/firebase/collections/repositories"
-
+import {
+  Repository,
+  RepositorySearchResponse,
+} from "@/firebase/collections/repositories/types"
 // Load environment variables from .env
 config()
 
@@ -45,7 +48,7 @@ async function migrateRepositories() {
 
     // Fetch multiple pages of repositories
     const pages = 10 // Fetch 10 pages (1000 repos total)
-    const allRepos: GitHubRepo[] = []
+    const allRepos: Repository[] = []
 
     for (let page = 1; page <= pages; page++) {
       console.log(`Fetching page ${page}/${pages}...`)
@@ -58,7 +61,7 @@ async function migrateRepositories() {
         }
       )
 
-      const data: GitHubSearchResponse = await response.json()
+      const data: RepositorySearchResponse = await response.json()
       allRepos.push(...data.items)
 
       // Respect GitHub's rate limit

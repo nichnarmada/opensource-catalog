@@ -1,25 +1,15 @@
 "use client"
 
-import { ActivityFeed as ActivityFeedType, Activity } from "@/types/activity"
 import { useState } from "react"
 import { ActivityFeed } from "@/components/community/activity-feed"
-import { getPublicBookmarkFeed } from "@/firebase/services/bookmarks"
-import { BookmarkActivity } from "@/firebase/collections/bookmarks/types"
+import { getPublicActivityFeed } from "@/firebase/services/activities/queries"
+import {
+  Activity,
+  ActivityFeed as ActivityFeedType,
+} from "@/firebase/collections/activities"
 
 interface ActivityFeedWrapperProps {
   initialFeed: ActivityFeedType
-}
-
-// Transform BookmarkActivity to Activity
-function transformBookmarkActivity(activity: BookmarkActivity): Activity {
-  return {
-    ...activity,
-    type: "bookmark",
-    userProfile: {
-      ...activity.userProfile,
-      photoURL: activity.userProfile.photoURL || "",
-    },
-  }
 }
 
 export function ActivityFeedWrapper({ initialFeed }: ActivityFeedWrapperProps) {
@@ -35,15 +25,12 @@ export function ActivityFeedWrapper({ initialFeed }: ActivityFeedWrapperProps) {
 
     setIsLoading(true)
     try {
-      const data = await getPublicBookmarkFeed(10, lastVisible)
-      setActivities((prev) => [
-        ...prev,
-        ...data.activities.map(transformBookmarkActivity),
-      ])
+      const data = await getPublicActivityFeed(10, lastVisible)
+      setActivities((prev) => [...prev, ...data.activities])
       setHasMore(data.hasMore)
       setLastVisible(data.lastVisible)
     } catch (error) {
-      console.error("Failed to load more bookmarks:", error)
+      console.error("Failed to load more activities:", error)
     } finally {
       setIsLoading(false)
     }

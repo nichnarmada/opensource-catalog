@@ -87,7 +87,7 @@ export function ProjectList({
 
     initialItems.forEach(async (project) => {
       const [bookmarked, stats] = await Promise.all([
-        isBookmarked(user.uid, parseInt(project.id)),
+        isBookmarked(user.uid, project.id),
         fetch(`/api/bookmarks/stats/${project.id}`).then((res) => res.json()),
       ])
 
@@ -102,7 +102,7 @@ export function ProjectList({
     const isCurrentlyBookmarked = bookmarkStates[project.id]
 
     if (isCurrentlyBookmarked) {
-      await removeBookmark(user.uid, parseInt(project.id))
+      await removeBookmark(user.uid, project.id.toString())
     } else {
       await addBookmark(
         user.uid,

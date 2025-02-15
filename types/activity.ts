@@ -1,5 +1,6 @@
-import { GitHubRepo } from "./github"
+import { Repository } from "@/firebase/collections/repositories/types"
 import { UserProfile } from "@/firebase/collections/users/types"
+import { Timestamp } from "firebase/firestore"
 
 export type ActivityType = "bookmark" | "comment" | "fork_idea" | "star"
 
@@ -8,19 +9,10 @@ export interface Activity {
   type: ActivityType
   userId: string
   userProfile: Pick<UserProfile, "displayName" | "photoURL">
-  repo: Pick<
-    GitHubRepo,
-    | "id"
-    | "name"
-    | "full_name"
-    | "description"
-    | "html_url"
-    | "language"
-    | "stargazers_count"
-    | "topics"
-  >
+  repo: Repository
   timestamp: Date
   isPublic: boolean
+  createdAt: Timestamp
 }
 
 export interface ActivityFeed {

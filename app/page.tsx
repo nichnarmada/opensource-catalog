@@ -1,26 +1,9 @@
 import { Suspense } from "react"
-import { getPublicBookmarkFeed } from "@/firebase/services/bookmarks"
+import { getPublicActivityFeed } from "@/firebase/services/activities/queries"
 import { ActivityFeedWrapper } from "./activity-feed-wrapper"
-import { Activity } from "@/types/activity"
-import { BookmarkActivity } from "@/firebase/collections/bookmarks/types"
-
-function transformBookmarkActivity(activity: BookmarkActivity): Activity {
-  return {
-    ...activity,
-    type: "bookmark",
-    userProfile: {
-      ...activity.userProfile,
-      photoURL: activity.userProfile.photoURL || "",
-    },
-  }
-}
 
 export default async function HomePage() {
-  const rawFeed = await getPublicBookmarkFeed(5)
-  const initialFeed = {
-    ...rawFeed,
-    activities: rawFeed.activities.map(transformBookmarkActivity),
-  }
+  const initialFeed = await getPublicActivityFeed(5)
 
   return (
     <main className="container mx-auto p-4 sm:p-6 lg:p-8">

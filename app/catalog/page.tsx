@@ -62,7 +62,6 @@ async function Projects({
   try {
     const { repositories, total } = await getFirestoreRepositories({
       language,
-      page: currentPage,
       perPage,
       minStars: 100,
     })

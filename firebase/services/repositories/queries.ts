@@ -12,13 +12,12 @@ import {
 import {
   Repository,
   REPOSITORY_COLLECTION,
-} from "@/firebase/collections/repositories/types"
+} from "@/firebase/collections/repositories"
 
 interface GetRepositoriesOptions {
   language?: string
   minStars?: number
   topics?: string[]
-  page?: number
   perPage?: number
   lastVisible?: QueryDocumentSnapshot
 }
@@ -27,7 +26,6 @@ export async function getFirestoreRepositories({
   language,
   minStars = 0,
   topics = [],
-  page = 1,
   perPage = 12,
   lastVisible,
 }: GetRepositoriesOptions = {}) {

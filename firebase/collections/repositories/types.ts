@@ -33,6 +33,3 @@ export interface RepositorySearchResponse {
   incomplete_results: boolean
   items: Repository[]
 }
-
-// Constants for the collection
-export const REPOSITORY_COLLECTION = "repositories" as const

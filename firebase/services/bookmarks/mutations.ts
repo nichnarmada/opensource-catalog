@@ -6,23 +6,28 @@ import {
   serverTimestamp,
   updateDoc,
   getDoc,
+  Timestamp,
 } from "firebase/firestore"
 import { db } from "@/firebase/config"
-import { type BookmarkCreate } from "@/firebase/collections/bookmarks/types"
+import {
+  BookmarkCreate,
+  Bookmark,
+} from "@/firebase/collections/bookmarks/types"
 import {
   BOOKMARKS_COLLECTION,
   REPO_STATS_COLLECTION,
 } from "@/firebase/collections/bookmarks/constants"
 import { UserProfile } from "@/firebase/collections/users/types"
-import { GitHubRepo } from "@/types/github"
+import { Repository } from "@/firebase/collections/repositories/types"
 import { getBookmarkByRepoId } from "@/firebase/services/bookmarks/queries"
+import { createBookmarkActivity } from "../activities/mutations"
 
 export async function addBookmark(
   userId: string,
   userProfile: Pick<UserProfile, "displayName" | "photoURL">,
-  repo: GitHubRepo,
+  repo: Repository,
   isPublic: boolean = true
-) {
+): Promise<Bookmark> {
   if (!repo || typeof repo.id === "undefined") {
     throw new Error("Invalid repository data")
   }
@@ -43,17 +48,8 @@ export async function addBookmark(
       displayName: userProfile.displayName,
       photoURL: userProfile.photoURL ?? null,
     },
-    repo: {
-      id: repo.id,
-      name: repo.name,
-      full_name: repo.full_name,
-      description: repo.description || "",
-      html_url: repo.html_url,
-      language: repo.language || "Unknown",
-      stargazers_count: repo.stargazers_count,
-      topics: repo.topics || [],
-    },
-    createdAt: new Date(),
+    repo,
+    createdAt: Timestamp.now(),
     isPublic,
   }
   batch.set(bookmarkRef, bookmark)
@@ -71,15 +67,17 @@ export async function addBookmark(
   )
 
   await batch.commit()
+
+  // Create activity
+  await createBookmarkActivity(userId, userProfile, repo, isPublic)
+
   return {
     id: bookmarkRef.id,
     ...bookmark,
-    activityType: "bookmark" as const,
-    timestamp: bookmark.createdAt,
   }
 }
 
-export async function removeBookmark(userId: string, repoId: number) {
+export async function removeBookmark(userId: string, repoId: string) {
   const batch = writeBatch(db)
 
   // Remove the bookmark
@@ -88,7 +86,7 @@ export async function removeBookmark(userId: string, repoId: number) {
     batch.delete(doc(db, BOOKMARKS_COLLECTION, bookmark.id))
 
     // Update stats
-    const statsRef = doc(db, REPO_STATS_COLLECTION, repoId.toString())
+    const statsRef = doc(db, REPO_STATS_COLLECTION, repoId)
     batch.set(
       statsRef,
       {
@@ -108,7 +106,6 @@ export async function updateBookmarkPrivacy(
   isPublic: boolean
 ): Promise<{ success: boolean; error?: { code: string } }> {
   try {
-    // Get and verify bookmark
     const bookmarkRef = doc(db, BOOKMARKS_COLLECTION, bookmarkId)
     const bookmark = await getDoc(bookmarkRef)
 
@@ -116,7 +113,6 @@ export async function updateBookmarkPrivacy(
       return { success: false, error: { code: "NOT_FOUND" } }
     }
 
-    // Verify ownership
     const bookmarkData = bookmark.data()
     if (bookmarkData.userId !== userId) {
       return { success: false, error: { code: "FORBIDDEN" } }

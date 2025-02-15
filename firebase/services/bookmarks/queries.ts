@@ -23,7 +23,7 @@ import type {
   BookmarkFeed,
 } from "../../collections/bookmarks/types"
 
-export async function getBookmarkByRepoId(userId: string, repoId: number) {
+export async function getBookmarkByRepoId(userId: string, repoId: string) {
   const bookmarksRef = collection(db, BOOKMARKS_COLLECTION)
   const q = query(
     bookmarksRef,
@@ -49,7 +49,7 @@ export async function getUserBookmarks(userId: string) {
   })) as Bookmark[]
 }
 
-export async function isBookmarked(userId: string, repoId: number) {
+export async function isBookmarked(userId: string, repoId: string) {
   const bookmarksRef = collection(db, BOOKMARKS_COLLECTION)
   const q = query(
     bookmarksRef,
@@ -83,16 +83,14 @@ export async function getPublicBookmarkFeed(
   return {
     activities: querySnapshot.docs.map((doc) => {
       const data = doc.data()
-      const timestamp = (data.createdAt as Timestamp).toDate()
-
       return {
         id: doc.id,
         type: "bookmark" as const,
         userId: data.userId,
         userProfile: data.userProfile,
         repo: data.repo,
-        timestamp,
-        createdAt: timestamp,
+        timestamp: data.createdAt,
+        createdAt: data.createdAt,
         isPublic: data.isPublic,
         activityType: "bookmark",
       }
@@ -126,15 +124,14 @@ export async function getBookmarksByUser(
   return {
     activities: querySnapshot.docs.map((doc) => {
       const data = doc.data()
-      const timestamp = (data.createdAt as Timestamp).toDate()
-
       return {
         id: doc.id,
+        type: "bookmark" as const,
         userId: data.userId,
         userProfile: data.userProfile,
         repo: data.repo,
-        timestamp,
-        createdAt: timestamp,
+        timestamp: data.createdAt,
+        createdAt: data.createdAt,
         isPublic: data.isPublic,
         activityType: "bookmark",
       }
@@ -144,10 +141,10 @@ export async function getBookmarksByUser(
   }
 }
 
-export async function getBookmarkStats(repoId: string | number) {
+export async function getBookmarkStats(repoId: string) {
   const [statsDoc, repoDoc] = await Promise.all([
-    getDoc(doc(db, REPO_STATS_COLLECTION, repoId.toString())),
-    getDoc(doc(db, "github_repos", repoId.toString())),
+    getDoc(doc(db, REPO_STATS_COLLECTION, repoId)),
+    getDoc(doc(db, "github_repos", repoId)),
   ])
 
   return {

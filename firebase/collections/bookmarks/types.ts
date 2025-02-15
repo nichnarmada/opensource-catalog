@@ -1,25 +1,13 @@
-import { GitHubRepo } from "../../../types/github"
-import { UserProfile } from "@/firebase/collections/users/types"
+import { Timestamp } from "firebase/firestore"
+import { Repository } from "../repositories/types"
+import { UserProfile } from "../users/types"
 
 export interface Bookmark {
   id: string
   userId: string
-  userProfile: {
-    displayName: string
-    photoURL: string | null | undefined
-  }
-  repo: Pick<
-    GitHubRepo,
-    | "id"
-    | "name"
-    | "full_name"
-    | "description"
-    | "html_url"
-    | "language"
-    | "stargazers_count"
-    | "topics"
-  >
-  createdAt: Date
+  userProfile: Pick<UserProfile, "displayName" | "photoURL">
+  repo: Repository
+  createdAt: Timestamp
   isPublic: boolean
 }
 
@@ -27,13 +15,13 @@ export type BookmarkCreate = Omit<Bookmark, "id">
 export type BookmarkUpdate = Partial<BookmarkCreate>
 
 export interface BookmarkStats {
-  repoId: number
+  repoId: string
   repo: Pick<
-    GitHubRepo,
+    Repository,
     "full_name" | "description" | "language" | "stargazers_count"
   >
   totalBookmarks: number
-  recentBookmarkers: Array<Pick<UserProfile, "id" | "displayName" | "photoURL">>
+  recentBookmarkers: Array<Pick<UserProfile, "displayName" | "photoURL" | "id">>
 }
 
 // Activity types for the feed

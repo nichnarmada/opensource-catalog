@@ -4,7 +4,7 @@ import { formatDistanceToNow } from "date-fns"
 import { Bookmark, MessageSquare, GitFork, Star } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
-import { Activity } from "@/types/activity"
+import { Activity } from "@/firebase/collections/activities"
 
 interface ActivityCardProps {
   activity: Activity
@@ -51,7 +51,9 @@ export function ActivityCard({ activity }: ActivityCardProps) {
             </a>
           </p>
           <p className="text-xs text-muted-foreground">
-            {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
+            {formatDistanceToNow(activity.timestamp.toDate(), {
+              addSuffix: true,
+            })}
           </p>
         </div>
       </CardContent>

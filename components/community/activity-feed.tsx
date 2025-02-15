@@ -1,4 +1,4 @@
-import { Activity } from "@/types/activity"
+import { Activity } from "@/firebase/collections/activities"
 import { ActivityCard } from "./activity-card"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"

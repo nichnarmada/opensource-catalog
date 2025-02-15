@@ -111,7 +111,6 @@ export async function getUserProfileWithStats(
   const q = query(
     bookmarksRef,
     where(BOOKMARK_FIELD_NAMES.userId, "==", userId),
-    where(BOOKMARK_FIELD_NAMES.isPublic, "==", true),
     orderBy(BOOKMARK_FIELD_NAMES.createdAt, "desc"),
     queryLimit(5)
   )

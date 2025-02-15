@@ -11,23 +11,22 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Repo spotlights rules
+    match /repo-spotlights/{spotlightId} {
+      allow read: if true;
+      allow write: if true; // For testing. In production, restrict to admin only
+    }
+
     // Bookmark rules
     match /bookmarks/{bookmarkId} {
-      // Allow reading all bookmarks
       allow read: if true;
-      
-      // Allow creating if authenticated
       allow create: if isSignedIn();
-      
-      // Allow updating/deleting own bookmarks
       allow update, delete: if isOwner(resource.data.userId);
     }
 
     // User profile rules
     match /users/{userId} {
-      // Allow reading any user profile
       allow read: if true;
-      // Only allow users to modify their own profile
       allow write: if isOwner(userId);
     }
 

@@ -2,12 +2,12 @@
 
 import {
   Home,
-  Bookmark,
-  Library,
-  LogIn,
-  LogOut,
   User,
   ChevronUp,
+  Compass,
+  Bookmark,
+  LogIn,
+  LogOut,
 } from "lucide-react"
 import {
   Sidebar,
@@ -93,16 +93,16 @@ export function MainSidebar() {
             </Link>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <Link href="/catalog" passHref legacyBehavior>
+            <Link href="/discover" passHref legacyBehavior>
               <SidebarMenuButton
-                tooltip="Catalog"
+                tooltip="Discover"
                 className={cn(
                   "h-10",
-                  isActive("/catalog") && "bg-muted text-foreground"
+                  isActive("/discover") && "bg-muted text-foreground"
                 )}
               >
-                <Library className="h-5 w-5" />
-                <span>Catalog</span>
+                <Compass className="h-5 w-5" />
+                <span>Discover</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>

@@ -21,6 +21,7 @@ export default function SavedPage() {
 
     const fetchBookmarks = async () => {
       try {
+        setLoading(true)
         const userBookmarks = await getUserBookmarks(user.uid)
         setBookmarks(userBookmarks)
       } catch (error) {
@@ -33,6 +34,16 @@ export default function SavedPage() {
 
     fetchBookmarks()
   }, [user])
+
+  const handleRemoveBookmark = async (bookmark: Bookmark) => {
+    try {
+      await removeBookmark(user!.uid, bookmark.repo.id.toString())
+      setBookmarks((prev) => prev.filter((b) => b.id !== bookmark.id))
+    } catch (error) {
+      console.error("Error removing bookmark:", error)
+      setError("Failed to remove bookmark. Please try again.")
+    }
+  }
 
   if (!user) {
     return null // This prevents flash of content before redirect
@@ -49,10 +60,13 @@ export default function SavedPage() {
             Projects you&apos;ve bookmarked for later
           </p>
         </div>
+
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <div className="text-muted-foreground">Loading bookmarks...</div>
           </div>
+        ) : error ? (
+          <div className="text-destructive text-center py-8">{error}</div>
         ) : bookmarks.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">
             No bookmarks yet. Browse projects to add some!
@@ -63,35 +77,11 @@ export default function SavedPage() {
               <ProjectCard
                 key={bookmark.id}
                 project={bookmark.repo}
-                bookmarkStats={{
-                  repoId: bookmark.repo.id,
-                  repo: {
-                    full_name: bookmark.repo.full_name,
-                    description: bookmark.repo.description,
-                    language: bookmark.repo.language,
-                    stargazers_count: bookmark.repo.stargazers_count,
-                  },
-                  totalBookmarks: 1, // Since it's bookmarked
-                  recentBookmarkers: [
-                    {
-                      id: bookmark.userId,
-                      displayName: bookmark.userProfile.displayName,
-                      photoURL: bookmark.userProfile.photoURL ?? "",
-                    },
-                  ],
-                }}
                 isBookmarked={true}
-                onBookmarkToggle={async () => {
-                  // Handle unbookmark
-                  await removeBookmark(user.uid, bookmark.repo.id)
-                  setBookmarks(bookmarks.filter((b) => b.id !== bookmark.id))
-                }}
+                onBookmarkToggle={() => handleRemoveBookmark(bookmark)}
               />
             ))}
           </div>
-        )}
-        {error && (
-          <div className="text-destructive text-center py-8">{error}</div>
         )}
       </div>
     </main>

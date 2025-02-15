@@ -2,16 +2,22 @@
 
 **What is this app?**
 
-Open Source Brainstorm is a collaborative web platform designed to help developers and enthusiasts explore, discuss, and ideate on existing open source projects. It serves as a centralized hub where users can browse a curated list of projects (sourced from GitHub), view detailed project information, and share their own ideas for forking or enhancing these projects.
+Open Source Brainstorm is an AI-powered platform designed to help students and developers discover the perfect open source projects to fork and enhance. Unlike traditional project catalogs, it uses artificial intelligence to understand each user's interests, skills, and goals, then recommends highly relevant, forkable projects while automatically filtering out unsuitable repositories like learning resources, frameworks, and meta-repositories.
 
-The platform focuses on discovering actual applications and tools, filtering out learning resources, frameworks, and meta-repositories to ensure users find forkable projects.
+The platform focuses on matching users with actual applications and tools they can meaningfully contribute to, making it ideal for academic assignments and personal portfolio development.
 
 ---
 
 **Key Features:**
 
-- **Project Listing:**  
-  Browse a filtered list of practical open source projects, excluding frameworks, learning resources, and meta-repositories.
+- **AI-Guided Discovery:**  
+  Interactive questionnaires and prompts help understand your interests, skills, and project goals to provide personalized recommendations.
+
+- **Curated Project Showcase:**
+  A handpicked selection of high-quality, forkable projects to help users get started immediately.
+
+- **Interest-Based Matching:**
+  Tell us about your preferred industry, tech stack, or project type, and let AI find the perfect match.
 
 - **Project Bookmarking:**
   Save interesting projects to your personal collection and see who else has bookmarked them.
@@ -25,22 +31,22 @@ The platform focuses on discovering actual applications and tools, filtering out
 - **User Authentication:**  
   Secure sign-up and login via Firebase Authentication, ensuring that only authenticated users can submit and manage fork ideas.
 
-- **Search & Filter:**  
-  Quickly search for projects and apply filters (e.g., by programming language or license) to narrow down the list.
-
 ---
 
 **Why Use Open Source Brainstorm?**
 
-- **Collaborative Innovation:**  
-  Leverage community insights to identify potential improvements in open source projects.
+- **Personalized Discovery:**  
+  Let AI help you find projects that match your interests and skill level, saving hours of manual searching.
 
-- **Curated Content:**  
-  Discover high-quality projects without the hassle of manual searches.
+- **Academic-Friendly:**  
+  Specifically designed to help students find suitable projects for academic assignments and portfolio development.
+
+- **Quality Assurance:**  
+  Smart filtering ensures you only see practical, forkable projects - no frameworks, learning resources, or unsuitable repositories.
 
 - **Community Engagement:**  
   Share your ideas and interact with like-minded developers to spark new initiatives and enhance existing projects.
 
 ---
 
-Happy coding and brainstorming!
+Happy coding and discovering!

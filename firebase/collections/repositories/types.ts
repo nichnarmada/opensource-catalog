@@ -1,34 +1,17 @@
-import { BLOCKED_REPOSITORIES } from "./constants"
-
 export interface Repository {
-  id: string // GitHub repo ID
+  id: string
   name: string
   full_name: string
-  description: string | null
+  description: string
   html_url: string
-  language: string | null
-  languages: string[] // All languages used
+  language: string
   stargazers_count: number
+  forks_count: number
   topics: string[]
-
-  // Filtering metadata
-  is_blocked: boolean
-  block_reason?: {
-    blocked_keywords: string[]
-    suspicious_keywords: string[]
-    is_blocked_repo: boolean
-  }
-
-  // Timestamps
-  last_synced: string
   created_at: string
   updated_at: string
-}
-
-export type BlockedRepository = (typeof BLOCKED_REPOSITORIES)[number]
-
-export interface RepositorySearchResponse {
-  total_count: number
-  incomplete_results: boolean
-  items: Repository[]
+  // AI-specific fields
+  ai_reasoning?: string
+  difficulty_level?: "beginner" | "intermediate" | "advanced"
+  suggested_features?: string[]
 }

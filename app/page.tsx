@@ -1,10 +1,4 @@
-import { Suspense } from "react"
-import { getPublicActivityFeed } from "@/firebase/services/activities/queries"
-import { ActivityFeedWrapper } from "./activity-feed-wrapper"
-
 export default async function HomePage() {
-  const initialFeed = await getPublicActivityFeed(5)
-
   return (
     <main className="container mx-auto p-4 sm:p-6 lg:p-8">
       <div className="space-y-6">
@@ -20,9 +14,7 @@ export default async function HomePage() {
         <div className="grid gap-6 md:grid-cols-2">
           <section className="space-y-4">
             <h2 className="text-xl font-semibold">Recent Activity</h2>
-            <Suspense fallback={<div>Loading...</div>}>
-              <ActivityFeedWrapper initialFeed={initialFeed} />
-            </Suspense>
+            {/* Add your activity feed component here */}
           </section>
 
           <section className="space-y-4">

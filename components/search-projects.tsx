@@ -3,13 +3,7 @@
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 
-interface SearchProjectsProps {
-  initialValue: string
-}
-
-export function SearchProjects({ initialValue }: SearchProjectsProps) {
-  console.log("initialValue", initialValue)
-
+export function SearchProjects() {
   return (
     <div className="relative flex-1">
       <Input

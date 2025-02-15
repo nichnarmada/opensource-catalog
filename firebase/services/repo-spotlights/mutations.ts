@@ -1,4 +1,11 @@
-import { addDoc, collection } from "firebase/firestore"
+import {
+  addDoc,
+  collection,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+} from "firebase/firestore"
 import { db } from "@/firebase/config"
 import {
   REPO_SPOTLIGHTS_COLLECTION,
@@ -11,10 +18,27 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
+// Get the last N spotlights to avoid repetition
+async function getLastNSpotlights(n: number = 5): Promise<RepoSpotlight[]> {
+  const spotlightsRef = collection(db, REPO_SPOTLIGHTS_COLLECTION)
+  const q = query(spotlightsRef, orderBy("timestamp", "desc"), limit(n))
+  const snapshot = await getDocs(q)
+
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as RepoSpotlight[]
+}
+
 // Function to generate repository recommendations using OpenAI
-async function generateRepoRecommendations(): Promise<Repository[]> {
+async function generateRepoRecommendations(
+  previousRepos: string[]
+): Promise<Repository[]> {
   const prompt = `Generate a list of 10 interesting open source projects that students could fork and enhance. 
   Focus on actual applications (not frameworks, libraries, or learning resources).
+  
+  IMPORTANT: Do NOT include any of these previously recommended repositories:
+  ${previousRepos.join("\n")}
   
   Return the response in this exact JSON format:
   {
@@ -37,6 +61,7 @@ async function generateRepoRecommendations(): Promise<Repository[]> {
   - Must be actively maintained
   - Must be suitable for student projects
   - Must have clear potential for enhancement
+  - Must NOT be any of the previously recommended repositories
   - Difficulty level should be balanced across selections`
 
   const completion = await openai.chat.completions.create({
@@ -99,18 +124,25 @@ async function enrichWithGitHubData(
 
 // Function to generate and save a new spotlight
 export async function generateNewSpotlight(): Promise<RepoSpotlight> {
-  // Generate recommendations using OpenAI
-  const repositories = await generateRepoRecommendations()
+  // Get previous spotlights to avoid repetition
+  const previousSpotlights = await getLastNSpotlights(5)
+  const previousRepos = previousSpotlights
+    .flatMap((spotlight) => spotlight.repositories)
+    .map((repo) => repo.full_name)
+
+  // Generate recommendations using OpenAI, avoiding previous repos
+  const repositories = await generateRepoRecommendations(previousRepos)
 
   // Enrich with GitHub data
   const enrichedRepos = await enrichWithGitHubData(repositories)
 
-  // Create new spotlight
+  // Create new spotlight with previous repos info
   const spotlight: Omit<RepoSpotlight, "id"> = {
     timestamp: new Date().toISOString(),
     repositories: enrichedRepos,
     aiCuratorNotes: "Generated using GPT-4 with focus on forkable applications",
     generationPrompt: "Focus on actual applications for student projects",
+    previouslyExcludedRepos: previousRepos, // Store excluded repos for transparency
   }
 
   // Save to Firestore
